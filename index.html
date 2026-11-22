@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Gestão do Consultório</title>
+<link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#0f766e">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Consultório">
+<style>
+:root{--bg:#f6f7f9;--c:#fff;--t:#14202b;--m:#5b6b79;--a:#0f766e;--bt:#fff;--b:#dfe5ea;--bad:#b42318}
+@media(prefers-color-scheme:dark){:root{--bg:#0f1418;--c:#18202a;--t:#e8eef3;--m:#93a4b3;--a:#2dd4bf;--bt:#06201d;--b:#2a3642;--bad:#f97066}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--t);font:16px/1.4 system-ui,-apple-system,sans-serif;padding-top:env(safe-area-inset-top)}
+main{max-width:760px;margin:0 auto;padding:14px 14px 96px}
+nav{position:fixed;bottom:0;left:0;right:0;display:flex;background:var(--c);border-top:1px solid var(--b);padding-bottom:env(safe-area-inset-bottom)}
+nav button{flex:1;padding:12px 2px;border:0;background:none;color:var(--m);font-size:12px}nav .on{color:var(--a);font-weight:700}
+.card{background:var(--c);border:1px solid var(--b);border-radius:14px;padding:14px;margin:10px 0}
+h2{margin:6px 0 2px;font-size:20px}h3{margin:0 0 8px;font-size:16px}
+label{font-size:13px;color:var(--m)}
+input,select,textarea{width:100%;padding:12px;margin:4px 0 8px;border:1px solid var(--b);border-radius:10px;background:var(--bg);color:var(--t);font:inherit}
+button.b{padding:12px 16px;border:0;border-radius:10px;background:var(--a);color:var(--bt);font:inherit;font-weight:600;margin:4px 4px 4px 0}
+button.g{background:none;color:var(--a);border:1px solid var(--b)}button.x{background:none;border:0;color:var(--bad);padding:4px 8px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.k{font-size:22px;font-weight:700}.m{color:var(--m);font-size:13px}
+.row{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid var(--b)}.row:last-child{border:0}
+.bad{color:var(--bad)}.tag{font-size:12px;padding:2px 8px;border-radius:99px;border:1px solid var(--b);color:var(--m)}a.l{color:var(--a);cursor:pointer}
+</style></head><body><div id="app"></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script>
+const sb=supabase.createClient('https://lriuxkkcpeavmtzgwlno.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxyaXV4a2tjcGVhdm10emd3bG5vIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTUyMjg3MTUsImV4cCI6MjExMDgwNDcxNX0.1IUTkB4oVzqRddfcGmLD09NA9rCpBmgrCbZ9u9wlHUY');
+const $=document.getElementById('app'),G=i=>document.getElementById(i)?.value??'';
+const R=v=>Number(v||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+const N=v=>{let s=String(v??'').trim();if(s.includes(','))s=s.replace(/\./g,'').replace(',','.');return parseFloat(s)||0};
+const P=v=>String(v??'').trim()===''?null:N(v);
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const ST={orcamento:'Orçamento',em_andamento:'Em andamento',concluida:'Concluída',cancelada:'Cancelada'};
+const hoje=()=>new Date().toISOString().slice(0,10);
+let nav='home',arg=null,per=null;
+async function q(p){const{data,error}=await p;if(error){alert(error.message);throw error}return data}
+const go=(v,a=null)=>{nav=v;arg=a;if(v!=='home')per=null;draw()};
+const run=f=>async(...a)=>{try{await f(...a)}catch(e){console.error(e)}};
+
+async function draw(){
+  const{data:{session}}=await sb.auth.getSession();
+  if(!session){$.innerHTML=`<main><h2>Gestão do Consultório</h2><div class="card"><label>E-mail</label><input id="em" type="email" autocomplete="username"><label>Senha</label><input id="pw" type="password" autocomplete="current-password"><button class="b" onclick="login()">Entrar</button></div></main>`;return}
+  const V={home:vHome,nova:vNova,pac:vPac,hist:vHist,edit:vEdit,cad:vCad,prod:vProd}[nav];
+  let h='';try{h=await V(arg)}catch(e){h='<div class="card bad">Não foi possível carregar. Verifique a conexão.</div>'}
+  const T=[['home','Início'],['nova','Nova'],['pac','Pacientes'],['hist','Histórico'],['cad','Cadastros']];
+  $.innerHTML=`<main>${h}</main><nav>${T.map(([k,t])=>`<button class="${nav===k||(nav==='edit'&&k==='hist')||(nav==='prod'&&k==='cad')?'on':''}" onclick="go('${k}')">${t}</button>`).join('')}</nav>`;
+}
+window.login=run(async()=>{const{error}=await sb.auth.signInWithPassword({email:G('em'),password:G('pw')});if(error)return alert('E-mail ou senha incorretos.');draw()});
+window.sair=run(async()=>{await sb.auth.signOut();draw()});
+
+/* ---------- Início (somente concluídas) ---------- */
+const MES=['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+let py=null,pm=null;
+async function vHome(){
+  const an=arg==='a',k=an?'ano':'mes';
+  const rows=await q(sb.from(an?'vw_dashboard_anual':'vw_dashboard_mensal').select('*').order(k,{ascending:false}));
+  const tog=`<div class="grid"><button class="b ${an?'g':''}" onclick="go('home','m')">Mensal</button><button class="b ${an?'':'g'}" onclick="go('home','a')">Anual</button></div>`;
+  if(!rows.length)return`<h2>Início</h2>${tog}<div class="card m">Nenhuma precificação concluída ainda. Os números aparecem aqui quando você concluir a primeira.</div>`;
+  let r,sel;
+  if(an){r=rows.find(x=>x[k]===per)||rows[0];sel=`<select onchange="per=this.value;draw()">${rows.map(x=>`<option value="${x[k]}" ${x[k]===r[k]?'selected':''}>${x[k].slice(0,4)}</option>`).join('')}</select>`}
+  else{
+    if(!py||!pm){py=rows[0].mes.slice(0,4);pm=rows[0].mes.slice(5,7)}
+    const ys=[...new Set([py,...rows.map(x=>x.mes.slice(0,4))])].sort().reverse();
+    r=rows.find(x=>x.mes===`${py}-${pm}-01`);
+    sel=`<div class="grid"><select onchange="pm=this.value;draw()">${MES.map((n,i)=>{const v=String(i+1).padStart(2,'0');return`<option value="${v}" ${v===pm?'selected':''}>${n}</option>`}).join('')}</select><select onchange="py=this.value;draw()">${ys.map(y=>`<option ${y===py?'selected':''}>${y}</option>`).join('')}</select></div>`;
+  }
+  const c=(t,v,s='')=>`<div class="card"><div class="m">${t}</div><div class="k">${v}</div>${s}</div>`;
+  const body=r?`<div class="grid">${c('Faturamento',R(r.faturamento))}${c('Lucro real',R(r.lucro_real),`<details class="m"><summary>detalhes</summary>Inclui ${R(r.cashback_no_lucro)} de cashback<br>Sem cashback: ${R(r.lucro_sem_cashback)}</details>`)}
+  ${c('Custos totais',R(r.custos_totais))}${c('Concluídos',r.tratamentos_concluidos)}${c('Ticket médio',R(r.ticket_medio))}${c('Margem real',Number(r.margem_real_pct||0).toFixed(1).replace('.',',')+'%')}</div>`:'<div class="card m">Nenhuma precificação concluída neste período.</div>';
+  return`<h2>Início</h2><div class="m">Somente precificações concluídas</div>${tog}${sel}${body}`;
+}
+
+/* ---------- Nova precificação ---------- */
+async function vNova(){
+  const ps=await q(sb.from('pacientes').select('id,nome').eq('arquivado',false).order('nome'));
+  return`<h2>Nova precificação</h2><div class="card"><label>Paciente já cadastrado</label>
+  <select id="n_p"><option value="">— escolher —</option>${ps.map(p=>`<option value="${p.id}">${esc(p.nome)}</option>`).join('')}</select>
+  <label>ou novo paciente</label><input id="n_n" placeholder="Nome do paciente">
+  <label>Procedimento</label><input id="n_pr" placeholder="Ex.: Botox"><button class="b" onclick="criar()">Criar e continuar</button></div>`;
+}
+window.criar=run(async()=>{
+  let pid=G('n_p');const nome=G('n_n').trim(),pr=G('n_pr').trim();
+  if((!pid&&!nome)||!pr)return alert('Escolha ou digite o paciente e o procedimento.');
+  if(!pid)pid=(await q(sb.from('pacientes').insert({nome}).select('id').single())).id;
+  go('edit',(await q(sb.from('precificacoes').insert({paciente_id:pid,procedimento:pr,status:'em_andamento'}).select('id').single())).id);
+});
+window.novaPara=run(async pid=>{const pr=prompt('Nome do procedimento');if(!pr)return;go('edit',(await q(sb.from('precificacoes').insert({paciente_id:pid,procedimento:pr,status:'em_andamento'}).select('id').single())).id)});
+
+/* ---------- Pacientes ---------- */
+async function vPac(id){
+  if(id&&id!=='arq'){
+    const[p,l]=await Promise.all([q(sb.from('pacientes').select('*').eq('id',id).single()),q(sb.from('precificacoes').select('id,procedimento,status,valor_total_cobrado,criado_em,concluida_em').eq('paciente_id',id).order('criado_em',{ascending:false}))]);
+    return`<a class="l" onclick="go('pac')">← Pacientes</a><h2>${esc(p.nome)}</h2><div class="m">${esc(p.telefone||'')} · cadastrado em ${new Date(p.criado_em).toLocaleDateString('pt-BR')}</div>
+    <button class="b" onclick="novaPara('${id}')">Nova precificação</button><button class="b g" onclick="arq('pacientes','${id}',${!p.arquivado},'pac')">${p.arquivado?'Desarquivar':'Arquivar'}</button><button class="x" onclick="excPac('${id}')">Excluir definitivamente</button><div class="card"><h3>Precificações</h3>${rowsP(l)||'<span class="m">Nenhuma ainda.</span>'}</div>`;
+  }
+  const l=await q(sb.from('pacientes').select('id,nome,telefone').eq('arquivado',id==='arq').order('nome'));
+  return`<h2>Pacientes</h2><div class="card"><input id="p_n" placeholder="Nome"><input id="p_t" placeholder="Telefone (opcional)" inputmode="tel"><button class="b" onclick="addPac()">Cadastrar</button></div>
+  <div class="card">${l.map(p=>`<div class="row"><a class="l" onclick="go('pac','${p.id}')">${esc(p.nome)}</a><span class="m">${esc(p.telefone||'')}</span></div>`).join('')||'<span class="m">Nenhum paciente.</span>'}</div><a class="l" onclick="go('pac',${id==='arq'?'null':"'arq'"})">${id==='arq'?'← Pacientes ativos':'Ver arquivados'}</a>`;
+}
+window.addPac=run(async()=>{if(!G('p_n').trim())return;await q(sb.from('pacientes').insert({nome:G('p_n').trim(),telefone:G('p_t').trim()||null}));go('pac')});
+const dt=x=>new Date(x).toLocaleDateString('pt-BR');
+const rowsP=l=>l.map(x=>`<div class="row"><span><a class="l" onclick="go('edit','${x.id}')">${esc(x.pacientes?.nome?x.pacientes.nome+' · ':'')}${esc(x.procedimento)}</a><br><span class="m">Criada em ${dt(x.criado_em)}${x.status==='concluida'&&x.concluida_em?' · concluída em '+dt(x.concluida_em):''}</span></span><span><span class="tag">${ST[x.status]}</span> ${x.valor_total_cobrado>0?R(x.valor_total_cobrado):''}</span></div>`).join('');
+
+/* ---------- Histórico ---------- */
+async function vHist(f){
+  let s=sb.from('precificacoes').select('id,procedimento,status,valor_total_cobrado,criado_em,concluida_em,pacientes(nome)').order('criado_em',{ascending:false}).limit(100);
+  s=f==='arq'?s.eq('arquivada',true):(f?s.eq('status',f):s).eq('arquivada',false);const l=await q(s);
+  return`<h2>Histórico</h2><select onchange="go('hist',this.value||null)"><option value="">Todas</option>${Object.entries(ST).map(([k,t])=>`<option value="${k}" ${f===k?'selected':''}>${t}</option>`).join('')}<option value="arq" ${f==='arq'?'selected':''}>Arquivadas</option></select>
+  <div class="card">${rowsP(l)||'<span class="m">Nada por aqui.</span>'}</div>`;
+}
+
+/* ---------- Editor da precificação ---------- */
+async function vEdit(id){
+  const[p,ms,ss,pr,ds,c]=await Promise.all([
+    q(sb.from('precificacoes').select('*,pacientes(nome)').eq('id',id).single()),
+    q(sb.from('precificacao_materiais').select('*').eq('precificacao_id',id).order('nome')),
+    q(sb.from('sessoes').select('*,dias_atendimento(data,local,pacientes)').eq('precificacao_id',id).order('numero')),
+    q(sb.from('produtos').select('id,nome').eq('ativo',true).order('nome')),
+    q(sb.from('dias_atendimento').select('id,data,local,pacientes').order('data',{ascending:false}).limit(40)),
+    q(sb.rpc('calcular_precificacao',{p_id:id}))]);
+  const L=p.status==='concluida',d=L?'disabled':'',cs={};(c.sessoes||[]).forEach(x=>cs[x.sessao_id]=x);
+  const f=(i,l,v,ex='')=>`<div><label>${l}</label><input id="${i}" value="${esc(v??'')}" inputmode="decimal" ${d} ${ex}></div>`;
+  const dif=N(G('x'))||0;
+  return`<a class="l" onclick="go('hist')">← Histórico</a><h2>${esc(p.procedimento)}</h2>
+  <div class="m"><a class="l" onclick="go('pac','${p.paciente_id}')">${esc(p.pacientes.nome)}</a> · <span class="tag">${ST[p.status]}</span>${L?' · bloqueada (snapshot v'+p.versao_vigente+')':''}</div>
+  <div class="card"><h3>1. Materiais (total do tratamento)</h3>
+   ${ms.map(m=>`<div class="row"><span>${esc(m.nome)} <span class="m">× ${m.quantidade_usada}</span></span><span>${R(m.preco_embalagem/m.rendimento*m.quantidade_usada)} ${L?'':`<button class="x" onclick="delMat('${m.id}','${id}')">✕</button>`}</span></div>`).join('')||'<span class="m">Nenhum material.</span>'}
+   ${L?'':`<div class="grid"><select id="m_p"><option value="">Produto</option>${pr.map(x=>`<option value="${x.id}">${esc(x.nome)}</option>`).join('')}</select><input id="m_q" placeholder="Quantidade" inputmode="decimal"></div><button class="b g" onclick="addMat('${id}')">Adicionar material</button>`}</div>
+  <div class="card"><h3>2. Sessões e custo operacional</h3>
+   ${ss.map(s=>{const x=cs[s.id]||{},dd=s.dias_atendimento;return`<div class="row"><span>Sessão ${s.numero} · ${s.status}${s.contar_custo?'':' (sem custo)'}<br><span class="m">${dd?`${dd.data} · ${dd.pacientes} paciente(s) · dia ${R(x.total_dia)}`:'sem dia'}</span></span><span>${R(s.custo_congelado??x.custo_atribuido)} ${L?'':`<br><a class="l" onclick="ajDia('${s.dia_id}','${id}')">ajustar pacientes</a> <button class="x" onclick="delSes('${s.id}','${id}')">✕</button>`}</span></div>`}).join('')||'<span class="m">Nenhuma sessão.</span>'}
+   ${L?'':`<label>Dia de atendimento</label><select id="s_dia" onchange="G('s_dia')!=='novo'?document.getElementById('nd').style.display='none':document.getElementById('nd').style.display='block'"><option value="novo">+ Novo dia</option>${ds.map(x=>`<option value="${x.id}">${x.data} ${esc(x.local)} (${x.pacientes} pac.)</option>`).join('')}</select>
+   <div id="nd"><div class="grid"><div><label>Data</label><input id="s_data" type="date" value="${hoje()}"></div><div><label>Pacientes no dia</label><input id="s_pac" inputmode="numeric"></div></div><label>Local (opcional)</label><input id="s_loc">
+   <label>Custos do dia, um por linha (ex.: Aluguel 130)</label><textarea id="s_it" rows="3"></textarea></div>
+   <div class="grid"><select id="s_st"><option>prevista</option><option>realizada</option><option>faltou</option></select><label style="padding-top:14px"><input id="s_ct" type="checkbox" checked style="width:auto"> contar custo</label></div>
+   <button class="b g" onclick="addSes('${id}',${ss.length+1})">Adicionar sessão</button>`}</div>
+  <div class="card"><h3>3. Preço e recebimento</h3>
+   <div class="grid">${f('f_mg','Margem desejada (%)',p.margem_desejada_pct)}${f('f_im','Impostos (%)',p.impostos_pct)}${f('f_ou','Outros custos (R$)',p.outros_custos)}</div>
+   ${(c.precos_sugeridos||[]).length?`<div class="m">Preço sugerido por forma de pagamento</div>${c.precos_sugeridos.map(x=>`<div class="row"><span>${x.forma==='pix'?'Pix':x.forma==='debito'?'Débito':x.parcelas+'x crédito'} <span class="m">taxa ${x.taxa_pct}%</span></span><b>${R(x.preco)}</b></div>`).join('')}`:'<div class="m">Informe a margem desejada para ver o preço sugerido.</div>'}
+   <hr style="border:0;border-top:1px solid var(--b);margin:12px 0">
+   ${f('f_tt','Valor total cobrado (cartão + Pix)',p.valor_total_cobrado)}<div class="grid">${f('f_ca','No cartão',p.valor_cartao)}${f('f_px','No Pix',p.valor_pix)}</div>
+   <div class="grid"><div><label>Forma do cartão</label><select id="f_fm" ${d}><option value="">—</option><option value="debito" ${p.cartao_forma==='debito'?'selected':''}>Débito</option><option value="credito" ${p.cartao_forma==='credito'?'selected':''}>Crédito</option></select></div>${f('f_pa','Parcelas',p.cartao_parcelas)}</div>
+   ${f('f_cb','Cashback (só aumenta o lucro)',p.cashback)}
+   ${Math.abs(c.diferenca_alocacao)>0.005?`<div class="bad">Cartão + Pix não fecham com o total (diferença ${R(c.diferenca_alocacao)}).</div>`:''}
+   <label>Status</label><select id="f_st" ${d}>${['orcamento','em_andamento','cancelada'].map(k=>`<option value="${k}" ${p.status===k?'selected':''}>${ST[k]}</option>`).join('')}${L?'<option selected>Concluída</option>':''}</select>
+   <input id="f_proc" type="hidden" value="${esc(p.procedimento)}">${L?'':`<button class="b" onclick="salvar('${id}')">Salvar e recalcular</button>`}</div>
+  <div class="card"><h3>Resultado</h3>
+   ${[['Materiais',c.materiais_total],['Custo operacional',c.operacional_total],['Outros custos',c.outros_custos],['Custo total',c.custo_total],['Taxa da maquininha ('+c.taxa_cartao_pct+'%)',c.taxa_cartao_valor],['Impostos',c.impostos_valor],['Líquido do cartão (F19)',c.f19_liquido_cartao]].map(([t,v])=>`<div class="row"><span>${t}</span><span>${R(v)}</span></div>`).join('')}
+   <div class="row"><b>Lucro real (F22)</b><b class="k">${R(c.lucro_real_f22)}</b></div><div class="row"><span>Margem real</span><span>${c.margem_real_pct==null?'—':Number(c.margem_real_pct).toFixed(2).replace('.',',')+'%'}</span></div>
+   ${L?`<button class="b g" onclick="reab('${id}')">Reabrir (com motivo)</button>`:p.status!=='cancelada'?`<button class="b" onclick="fin('${id}')">CONCLUIR PRECIFICAÇÃO</button>`:''}<div style="margin-top:10px"><button class="b g" onclick="arq('precificacoes','${id}',${!p.arquivada},'hist')">${p.arquivada?'Desarquivar':'Arquivar'}</button><button class="x" onclick="excPrec('${id}',${p.status==='concluida'||p.versao_vigente>0})">Excluir definitivamente</button></div></div>`;
+}
+window.arq=run(async(t,id,v,volta)=>{await q(sb.from(t).update(t==='pacientes'?{arquivado:v}:{arquivada:v}).eq('id',id));go(volta)});
+const impacto=async f=>{const r=await q(f);return{n:r.length,fat:r.reduce((s,x)=>s+Number(x.valor_total_cobrado),0),luc:r.reduce((s,x)=>s+Number(x.lucro_real),0)}};
+const confirmaImpacto=async(f,quem)=>{const i=await impacto(f);if(!i.n)return null;
+  if(!confirm(`ATENÇÃO: excluir ${quem} remove do Início ${i.n} tratamento(s) concluído(s), ${R(i.fat)} de faturamento e ${R(i.luc)} de lucro.\n\nSe só quer tirar da lista, use ARQUIVAR (continua contando).\n\nContinuar com a exclusão?`))return false;
+  if(confirm('Baixar um backup antes de excluir? (recomendado)'))await backup();
+  const m=prompt('Motivo da exclusão (fica registrado):');return m||false};
+window.excPrec=run(async id=>{
+  const m=await confirmaImpacto(sb.from('vw_concluidas').select('valor_total_cobrado,lucro_real').eq('precificacao_id',id),'esta precificação');
+  if(m===false)return;if(m===null&&!confirm('Excluir esta precificação?'))return;
+  await q(sb.rpc('excluir_precificacao',{p_id:id,p_motivo:m}));go('hist')});
+window.excPac=run(async id=>{
+  const m=await confirmaImpacto(sb.from('vw_concluidas').select('valor_total_cobrado,lucro_real').eq('paciente_id',id),'este paciente e todo o histórico dele');
+  if(m===false)return;if(m===null&&!confirm('Excluir este paciente e as precificações em aberto dele?'))return;
+  await q(sb.rpc('excluir_paciente',{p_id:id,p_motivo:m}));go('pac')});
+window.salvar=run(async id=>{
+  await q(sb.from('precificacoes').update({status:G('f_st'),margem_desejada_pct:P(G('f_mg')),impostos_pct:N(G('f_im')),outros_custos:N(G('f_ou')),valor_total_cobrado:N(G('f_tt')),valor_cartao:N(G('f_ca')),valor_pix:N(G('f_px')),cashback:N(G('f_cb')),cartao_forma:G('f_fm')||null,cartao_parcelas:G('f_pa')?parseInt(G('f_pa')):null}).eq('id',id));go('edit',id)});
+window.addMat=run(async id=>{const pid=G('m_p'),qt=N(G('m_q'));if(!pid||!qt)return alert('Escolha o produto e a quantidade.');await q(sb.from('precificacao_materiais').insert({precificacao_id:id,produto_id:pid,quantidade_usada:qt}));go('edit',id)});
+window.delMat=run(async(m,id)=>{await q(sb.from('precificacao_materiais').delete().eq('id',m));go('edit',id)});
+window.delSes=run(async(s,id)=>{if(!confirm('Remover esta sessão?'))return;await q(sb.from('sessoes').delete().eq('id',s));go('edit',id)});
+window.ajDia=run(async(dia,id)=>{const n=parseInt(prompt('Quantos pacientes foram atendidos neste dia?'));if(!n||n<1)return;await q(sb.from('dias_atendimento').update({pacientes:n}).eq('id',dia));go('edit',id)});
+window.addSes=run(async(id,n)=>{
+  let dia=G('s_dia');
+  if(dia==='novo'){
+    const it=G('s_it').split('\n').map(l=>l.trim().match(/^(.*?)[\s:]+([\d.,]+)$/)).filter(Boolean).map(m=>({descricao:m[1].trim(),valor:N(m[2])}));
+    if(!it.length||!parseInt(G('s_pac')))return alert('Informe os pacientes do dia e os custos (ex.: Aluguel 130).');
+    const d=await q(sb.from('dias_atendimento').insert({data:G('s_data'),local:G('s_loc').trim(),pacientes:parseInt(G('s_pac'))}).select('id').single());
+    await q(sb.from('dia_custos').insert(it.map(x=>({...x,dia_id:d.id}))));dia=d.id;
+  }
+  await q(sb.from('sessoes').insert({precificacao_id:id,numero:n,data:G('s_data')||null,dia_id:dia,status:G('s_st'),contar_custo:G('s_ct')!==''&&document.getElementById('s_ct').checked}));go('edit',id)});
+window.fin=run(async id=>{if(!confirm('Concluir? A precificação fica bloqueada e entra no Início. Só reabre com motivo.'))return;await q(sb.rpc('concluir_precificacao',{p_id:id}));go('edit',id)});
+window.reab=run(async id=>{const m=prompt('Motivo da reabertura:');if(!m)return;await q(sb.rpc('reabrir_precificacao',{p_id:id,p_motivo:m}));go('edit',id)});
+
+/* ---------- Cadastros, backup e conta ---------- */
+async function vCad(){
+  const[pr,tx]=await Promise.all([q(sb.from('produtos').select('id,nome,unidade,produto_precos(preco_embalagem,rendimento,vigente_desde)').eq('ativo',true).order('nome')),q(sb.from('taxas_cartao').select('*').order('vigente_desde',{ascending:false}))]);
+  const lt={};tx.forEach(t=>{const k=t.forma+(t.parcelas||'');if(!lt[k])lt[k]=t});
+  const T=Object.values(lt).sort((a,b)=>a.forma<b.forma?1:a.forma>b.forma?-1:a.parcelas-b.parcelas);
+  return`<h2>Cadastros</h2><div class="card"><h3>Produtos e materiais</h3>
+  ${pr.map(p=>{const u=p.produto_precos.sort((a,b)=>b.vigente_desde.localeCompare(a.vigente_desde))[0];return`<div class="row"><a class="l" onclick="go('prod','${p.id}')">${esc(p.nome)}</a><span class="m">${u?R(u.preco_embalagem)+' ÷ '+u.rendimento+' '+esc(p.unidade||''):'sem preço'}</span></div>`}).join('')}
+  <button class="b" onclick="go('prod','novo')">+ Novo produto</button></div>
+  <div class="card"><h3>Taxas da maquininha</h3><div class="m">Alterar cria uma nova versão; precificações concluídas não mudam.</div>
+  ${T.map(t=>`<div class="row"><span>${t.forma==='debito'?'Débito':t.parcelas+'x crédito'}</span><span>${t.percentual}% <a class="l" onclick="novaTaxa('${t.forma}',${t.parcelas})">alterar</a></span></div>`).join('')}</div>
+  <div class="card"><h3>Conta</h3><button class="b g" onclick="backup()">Exportar backup (JSON)</button><button class="b g" onclick="sair()">Sair</button></div>`;
+}
+async function vProd(id){
+  let p={nome:'',unidade:''},u={};
+  if(id!=='novo'){p=await q(sb.from('produtos').select('id,nome,unidade,produto_precos(preco_embalagem,rendimento,vigente_desde)').eq('id',id).single());u=p.produto_precos.sort((a,b)=>b.vigente_desde.localeCompare(a.vigente_desde))[0]||{}}
+  return`<a class="l" onclick="go('cad')">← Cadastros</a><h2>${id==='novo'?'Novo produto':'Editar produto'}</h2><div class="card">
+  <label>Nome</label><input id="c_n" value="${esc(p.nome)}">
+  <label>Unidade (opcional, ex.: unidades, ml)</label><input id="c_u" value="${esc(p.unidade||'')}">
+  <label>Preço total pago (R$)</label><input id="c_p" value="${esc(u.preco_embalagem??'')}" inputmode="decimal">
+  <label>Rendimento total (quanto rende tudo que você comprou)</label><input id="c_r" value="${esc(u.rendimento??'')}" inputmode="decimal">
+  <label>Comprou mais de uma embalagem? (opcional) Uma por linha: preço / rendimento. O app soma tudo e usa no lugar dos dois campos acima.</label>
+  <textarea id="c_e" rows="3" placeholder="700 / 200&#10;778 / 100"></textarea>
+  <button class="b" onclick="salvaProd('${id}')">Salvar</button>${id==='novo'?'':`<button class="b g" onclick="arqProd('${id}')">Arquivar</button>`}
+  <div class="m">Mudar preço ou rendimento vale só para as próximas precificações. As concluídas guardam os valores da época e não mudam.</div></div>`;
+}
+window.salvaProd=run(async id=>{
+  let pr=N(G('c_p')),rd=N(G('c_r'));const ln=G('c_e').split('\n').map(l=>l.split('/')).filter(a=>a.length===2&&N(a[1]));
+  if(ln.length){pr=ln.reduce((s,a)=>s+N(a[0]),0);rd=ln.reduce((s,a)=>s+N(a[1]),0)}
+  const n=G('c_n').trim();if(!n||!rd)return alert('Informe ao menos o nome e o rendimento.');
+  const campos={nome:n,unidade:G('c_u').trim()||null};
+  if(id==='novo')id=(await q(sb.from('produtos').insert(campos).select('id').single())).id;else await q(sb.from('produtos').update(campos).eq('id',id));
+  const l=(await q(sb.from('produto_precos').select('preco_embalagem,rendimento').eq('produto_id',id).order('vigente_desde',{ascending:false}).limit(1)))[0];
+  if(!l||Number(l.preco_embalagem)!==pr||Number(l.rendimento)!==rd)await q(sb.from('produto_precos').insert({produto_id:id,preco_embalagem:pr,rendimento:rd}));
+  go('cad')});
+window.arqProd=run(async id=>{if(!confirm('Arquivar? Ele some da lista, e as precificações antigas continuam intactas.'))return;await q(sb.from('produtos').update({ativo:false}).eq('id',id));go('cad')});
+window.novaTaxa=run(async(f,pa)=>{const v=prompt('Nova taxa (%):');if(v===null||v==='')return;await q(sb.from('taxas_cartao').insert({forma:f,parcelas:pa||null,percentual:N(v)}));go('cad')});
+window.backup=run(async()=>{
+  const out={gerado_em:new Date().toISOString()};
+  for(const t of['pacientes','dias_atendimento','dia_custos','itens_custo_nomes','produtos','produto_precos','taxas_cartao','precificacoes','precificacao_materiais','sessoes','snapshots','historico_alteracoes'])out[t]=await q(sb.from(t).select('*'));
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(out,null,1)],{type:'application/json'}));a.download='backup-consultorio-'+hoje()+'.json';a.click();
+});
+sb.auth.onAuthStateChange(()=>{});draw();
+</script></body></html>
