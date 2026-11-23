@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="pt-BR"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <title>Gestão do Consultório · Dr. Higor Arruda</title>
 <link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#4f5bff">
 <meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Consultório">
@@ -9,7 +9,7 @@
 @media(prefers-color-scheme:dark){:root{--bg:#0e1020;--c:#171a30;--t:#e9ebff;--m:#9aa0c7;--a:#7b86ff;--a2:#232850;--bt:#0e1020;--b:#2a2f52;--bad:#f97066;--ok:#4ade80;--okb:#12301f;--wn:#fbbf24;--wnb:#33260a;--sh:none;--side:#1b1f45}}
 *{box-sizing:border-box}[hidden]{display:none!important}
 html{-webkit-text-size-adjust:100%}
-body{margin:0;background:var(--bg);color:var(--t);font:15px/1.45 -apple-system,BlinkMacSystemFont,"Inter","Segoe UI",system-ui,sans-serif;padding-top:env(safe-area-inset-top)}
+body{margin:0;background:var(--bg);color:var(--t);font:15px/1.45 -apple-system,BlinkMacSystemFont,"Inter","Segoe UI",system-ui,sans-serif;padding-top:env(safe-area-inset-top);overflow-x:hidden;touch-action:manipulation}
 main{max-width:1040px;margin:0 auto;padding:12px 16px 108px}
 .side .brand{display:none}
 nav{position:fixed;left:10px;right:10px;bottom:calc(8px + env(safe-area-inset-bottom));display:flex;background:var(--c);border:1px solid var(--b);border-radius:20px;box-shadow:var(--sh);padding:6px;z-index:5}
@@ -30,13 +30,16 @@ nav .on{color:var(--a);background:var(--a2);font-weight:600}
  main>*{max-width:1000px}
  .mtop{display:none}
 }
-.card{background:var(--c);border:1px solid var(--b);border-radius:18px;padding:16px;margin:12px 0;box-shadow:var(--sh)}
+.card{min-width:0;background:var(--c);border:1px solid var(--b);border-radius:18px;padding:16px;margin:12px 0;box-shadow:var(--sh)}
 h2{margin:6px 0 2px;font-size:24px;letter-spacing:-.3px}h3{margin:0 0 10px;font-size:16px}
 .ph{margin-bottom:6px}
 label{font-size:12.5px;color:var(--m);font-weight:500}
-input,select,textarea{width:100%;padding:12px 13px;margin:4px 0 10px;border:1px solid var(--b);border-radius:12px;background:var(--bg);color:var(--t);font:inherit;transition:border-color .15s,box-shadow .15s}
+input,select,textarea{width:100%;padding:12px 13px;margin:4px 0 10px;border:1px solid var(--b);border-radius:12px;background:var(--bg);color:var(--t);font:inherit;font-size:16px;min-width:0;max-width:100%;transition:border-color .15s,box-shadow .15s}
 input:focus,select:focus,textarea:focus{outline:0;border-color:var(--a);box-shadow:0 0 0 3px var(--a2)}
 input[type=checkbox]{width:auto;margin:0 6px 0 0}
+input[type=date]{-webkit-appearance:none;appearance:none;display:block;min-height:48px;text-align:left}
+input[type=date]::-webkit-date-and-time-value{text-align:left}
+.grid2>*,.grid3>*{min-width:0}
 button.b{padding:11px 16px;border:0;border-radius:12px;background:var(--a);color:var(--bt);font:inherit;font-weight:600;margin:4px 6px 4px 0;cursor:pointer;transition:transform .1s,filter .15s}
 button.b:hover{filter:brightness(1.07)}button.b:active{transform:scale(.97)}
 button.g{background:var(--c);color:var(--a);border:1px solid var(--b)}
@@ -47,7 +50,7 @@ button.x{background:none;border:0;color:var(--bad);padding:4px 8px;cursor:pointe
 .grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
 .k{font-size:24px;font-weight:700;letter-spacing:-.4px}.m{color:var(--m);font-size:13px}.kt{color:var(--m);font-size:13px;font-weight:500;margin-bottom:2px}
 .ki{width:36px;height:36px;border-radius:12px;background:var(--a2);color:var(--a);display:grid;place-items:center;margin-bottom:10px}
-.open{border:1.5px dashed var(--wn)}.open .ki{background:var(--wnb);color:var(--wn)}
+.open{border:1.5px dashed var(--wn)}.open .ki{background:var(--wnb);color:var(--wn)}.open.and{border-color:var(--a)}.open.and .ki{background:var(--a2);color:var(--a)}.open .k{font-size:21px}
 .oh{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:10px}
 .row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--b)}.row:last-child{border:0}
 .row .r{text-align:right;white-space:nowrap}
@@ -72,11 +75,13 @@ details.cat summary::-webkit-details-marker{display:none}details.cat[open]>summa
 details.cat>button{margin:10px 0 12px}
 .subh{font-weight:600;font-size:13px;margin:14px 0 2px;display:flex;justify-content:space-between;align-items:center}
 .e{padding:8px 0}.sh{display:flex;justify-content:space-between;align-items:center;gap:8px}
-.info{background:var(--a2);border-radius:12px;padding:10px 12px;margin:6px 0 8px;font-size:13.5px}
+.info{overflow-wrap:anywhere;background:var(--a2);border-radius:12px;padding:10px 12px;margin:6px 0 8px;font-size:13.5px}
 .nota{margin-top:4px}.nota summary{cursor:pointer;color:var(--a)}
 .login{min-height:80vh;display:grid;place-items:center;padding:16px}.login .card{width:100%;max-width:380px}.login .brand{margin-bottom:14px}
 @media(prefers-reduced-motion:no-preference){main>*{animation:up .28s ease both}}
 @keyframes up{from{opacity:0;transform:translateY(6px)}}
+@keyframes swr{from{opacity:0;transform:translateX(-28px)}}@keyframes swl{from{opacity:0;transform:translateX(28px)}}
+@media(prefers-reduced-motion:no-preference){main.swr>*{animation:swr .26s ease both}main.swl>*{animation:swl .26s ease both}}
 </style></head><body><div id="app"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script>
@@ -97,6 +102,7 @@ const IC={home:'<path d="M3 11l9-8 9 8v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-
 const ic=(k,s=20)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${IC[k]}</svg>`;
 const brand=`<div class="brand"><div class="logo">HA</div><div><div class="bn">Dr. Higor Arruda</div><div class="bs">Gestão do consultório</div></div></div>`;
 let nav='home',arg=null,per=null;
+let DIRTY=false,SW=null,ANIM='';
 let PK={on:false,cat:'',sub:'',q:'',sel:null,pid:null},PL=[],DIA=null,CAD=[],cadQ='',cadOpen={};
 async function q(p){const{data,error}=await p;if(error){alert(error.message);throw error}return data}
 const go=(v,a=null)=>{nav=v;arg=a;if(v!=='home')per=null;draw()};
@@ -112,6 +118,7 @@ async function draw(){
   $.innerHTML=`<div class="shell"><aside class="side">${brand}<nav>${T.map(([k,t,i])=>`<button class="${on(k)?'on':''}" onclick="go('${k}')">${ic(i,22)}<span>${t}</span></button>`).join('')}</nav></aside><main><div class="mtop">${brand}</div>${h}</main></div>`;
   if(nav==='edit'){pkRender();diaInfo()}
   if(nav==='cad')cadRender();
+  DIRTY=false;const mm=document.querySelector('main');if(mm&&ANIM)mm.classList.add('sw'+ANIM);ANIM='';
 }
 window.login=run(async()=>{const{error}=await sb.auth.signInWithPassword({email:G('em'),password:G('pw')});if(error)return alert('E-mail ou senha incorretos.');draw()});
 window.sair=run(async()=>{await sb.auth.signOut();draw()});
@@ -121,11 +128,11 @@ const MES=['janeiro','fevereiro','março','abril','maio','junho','julho','agosto
 let py=null,pm=null;
 async function vHome(){
   const an=arg==='a',k=an?'ano':'mes';
-  const[rows,abl]=await Promise.all([q(sb.from(an?'vw_dashboard_anual':'vw_dashboard_mensal').select('*').order(k,{ascending:false})),q(sb.from('vw_orcamentos_abertos').select('*'))]);
-  const ab=abl[0]||{quantidade:0,faturamento_previsto:0,sem_valor:0};
+  const[rows,abl]=await Promise.all([q(sb.from(an?'vw_dashboard_anual':'vw_dashboard_mensal').select('*').order(k,{ascending:false})),q(sb.from('vw_pipeline').select('*'))]);
   const hd=`<div class="ph"><h2>Visão geral</h2><div class="m">Indicadores apenas de precificações concluídas</div></div>`;
   const tog=`<div class="seg"><button class="${an?'':'on'}" onclick="go('home','m')">Mensal</button><button class="${an?'on':''}" onclick="go('home','a')">Anual</button></div>`;
-  const aberto=`<div class="card open"><div class="oh"><div class="ki">${ic('hourglass')}</div><span class="tag warn">Previsto</span></div><div class="kt">Orçamentos em aberto</div><div class="m" style="margin-bottom:10px">Potencial dos tratamentos ainda não concluídos. Não entra nos indicadores realizados.</div><div class="grid2"><div><div class="m">Abertos ou em andamento</div><div class="k">${Number(ab.quantidade||0)}</div></div><div><div class="m">Faturamento previsto</div><div class="k">${R(ab.faturamento_previsto)}</div></div></div>${Number(ab.sem_valor)>0?`<div class="m" style="margin-top:8px">${Number(ab.sem_valor)} ainda sem valor total informado.</div>`:''}</div>`;
+  const pl=abl[0]||{},blk=(cl,i_,t,n,l2,v,sem)=>`<div class="card open ${cl}"><div class="oh"><div class="ki">${ic(i_)}</div><span class="tag ${cl==='and'?'ok':'warn'}">${t}</span></div><div class="grid2"><div><div class="m">Abertos</div><div class="k">${Number(n||0)}</div></div><div><div class="m">${l2}</div><div class="k">${R(v)}</div></div></div>${Number(sem)>0?`<div class="m" style="margin-top:8px">${Number(sem)} sem valor definido</div>`:''}</div>`;
+  const aberto=`<div class="kg">${blk('orc','hourglass','Orçamentos',pl.orcamentos_qtd,'Valor proposto',pl.orcamentos_valor,pl.orcamentos_sem_valor)}${blk('and','clock','Em andamento',pl.andamento_qtd,'Receita prevista',pl.andamento_valor,pl.andamento_sem_valor)}</div>`;
   if(!rows.length)return`${hd}${tog}<div class="card m">Nenhuma precificação concluída ainda. Os números aparecem aqui quando você concluir a primeira.</div>${aberto}`;
   let r,sel;
   if(an){r=rows.find(x=>x[k]===per)||rows[0];sel=`<select onchange="per=this.value;draw()">${rows.map(x=>`<option value="${x[k]}" ${x[k]===r[k]?'selected':''}>${x[k].slice(0,4)}</option>`).join('')}</select>`}
@@ -357,5 +364,24 @@ window.backup=run(async()=>{
   for(const t of['pacientes','dias_atendimento','dia_custos','itens_custo_nomes','produtos','produto_precos','taxas_cartao','precificacoes','precificacao_materiais','sessoes','snapshots','historico_alteracoes'])out[t]=await q(sb.from(t).select('*'));
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(out,null,1)],{type:'application/json'}));a.download='backup-consultorio-'+hoje()+'.json';a.click();
 });
+
+/* ---------- Gestos: arrastar para o lado volta ou troca de aba ---------- */
+const TABS=['home','nova','pac','hist','cad'];
+function swipe(dir){
+  let alvo=null;
+  const pai=nav==='edit'?'hist':nav==='prod'?'cad':(nav==='pac'&&arg)?'pac':null;
+  if(pai){if(dir==='r')alvo=pai}
+  else{const i=TABS.indexOf(nav),j=dir==='r'?i-1:i+1;if(i>=0&&j>=0&&j<TABS.length)alvo=TABS[j]}
+  if(!alvo)return;
+  if(DIRTY&&!confirm('Há alterações não salvas. Sair mesmo assim?'))return;
+  ANIM=dir;go(alvo);
+}
+document.addEventListener('touchstart',e=>{const t=e.touches[0];SW=(e.touches.length===1&&t.clientX>16)?{x:t.clientX,y:t.clientY,el:e.target}:null},{passive:true});
+document.addEventListener('touchend',e=>{
+  if(!SW)return;const t=e.changedTouches[0],dx=t.clientX-SW.x,dy=t.clientY-SW.y,el=SW.el;SW=null;
+  if(Math.abs(dx)<80||Math.abs(dy)>Math.abs(dx)*.5)return;
+  if(el&&el.closest&&el.closest('input,textarea,select,.plist'))return;
+  swipe(dx>0?'r':'l')},{passive:true});
+document.addEventListener('input',e=>{if(!['pk_q','cad_q'].includes(e.target.id))DIRTY=true});
 sb.auth.onAuthStateChange(()=>{});draw();
 </script></body></html>
