@@ -64,6 +64,13 @@ button.xx:hover{opacity:1;color:var(--bad)}
 .k{font-size:24px;font-weight:700;letter-spacing:-.4px}.m{color:var(--m);font-size:13px}.kt{color:var(--m);font-size:13px;font-weight:500;margin-bottom:2px}
 .ki{width:36px;height:36px;border-radius:12px;background:var(--a2);color:var(--a);display:grid;place-items:center;margin-bottom:10px}
 .open{border:1.5px dashed var(--wn)}.open .ki{background:var(--wnb);color:var(--wn)}.open.and{border-color:var(--a)}.open.and .ki{background:var(--a2);color:var(--a)}.open .k{font-size:21px}
+/* Mobile: Orçamentos e Em andamento em cards retangulares empilhados (só a tela inicial, só celular) */
+@media(max-width:640px){
+ .kg.pipe{grid-template-columns:minmax(0,1fr)}
+ .kg.pipe>.card{max-width:100%}
+ .kg.pipe .grid2{grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:12px}
+ .kg.pipe .k{font-size:clamp(18px,5.6vw,22px);line-height:1.2;overflow-wrap:anywhere}
+}
 .oh{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:10px}
 .row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--b)}.row:last-child{border:0}
 .row .r{text-align:right;white-space:nowrap}
@@ -195,7 +202,7 @@ async function vHome(){
   const hd=`<div class="ph"><h2>Visão geral</h2><div class="m">Indicadores apenas de precificações concluídas</div></div>`;
   const tog=`<div class="seg"><button class="${an?'':'on'}" onclick="go('home','m')">Mensal</button><button class="${an?'on':''}" onclick="go('home','a')">Anual</button></div>`;
   const pl=abl[0]||{},blk=(cl,i_,t,n,l2,v,sem)=>`<div class="card open ${cl}"><div class="oh"><div class="ki">${ic(i_)}</div><span class="tag ${cl==='and'?'ok':'warn'}">${t}</span></div><div class="grid2"><div><div class="m">Abertos</div><div class="k">${Number(n||0)}</div></div><div><div class="m">${l2}</div><div class="k">${R(v)}</div></div></div>${Number(sem)>0?`<div class="m" style="margin-top:8px">${Number(sem)} sem valor definido</div>`:''}</div>`;
-  const aberto=`<div class="kg">${blk('orc','hourglass','Orçamentos',pl.orcamentos_qtd,'Valor proposto',pl.orcamentos_valor,pl.orcamentos_sem_valor)}${blk('and','clock','Em andamento',pl.andamento_qtd,'Receita prevista',pl.andamento_valor,pl.andamento_sem_valor)}</div>`;
+  const aberto=`<div class="kg pipe">${blk('orc','hourglass','Orçamentos',pl.orcamentos_qtd,'Valor proposto',pl.orcamentos_valor,pl.orcamentos_sem_valor)}${blk('and','clock','Em andamento',pl.andamento_qtd,'Receita prevista',pl.andamento_valor,pl.andamento_sem_valor)}</div>`;
   if(!rows.length)return`${hd}${tog}<div class="card m">Nenhuma precificação concluída ainda. Os números aparecem aqui quando você concluir a primeira.</div>${aberto}`;
   let r,sel;
   if(an){r=rows.find(x=>x[k]===per)||rows[0];sel=`<select onchange="per=this.value;draw()">${rows.map(x=>`<option value="${x[k]}" ${x[k]===r[k]?'selected':''}>${x[k].slice(0,4)}</option>`).join('')}</select>`}
