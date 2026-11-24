@@ -103,6 +103,7 @@ details.cat>button{margin:10px 0 12px}
 @media(prefers-reduced-motion:no-preference){main.swr>*{animation:swr .26s ease both}main.swl>*{animation:swl .26s ease both}}
 </style></head><body><div id="app"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="config.js"></script>
 <script>
 const sb=supabase.createClient('https://lriuxkkcpeavmtzgwlno.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxyaXV4a2tjcGVhdm10emd3bG5vIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTUyMjg3MTUsImV4cCI6MjExMDgwNDcxNX0.1IUTkB4oVzqRddfcGmLD09NA9rCpBmgrCbZ9u9wlHUY');
 const $=document.getElementById('app'),G=i=>document.getElementById(i)?.value??'';
@@ -138,6 +139,17 @@ const tab=k=>{nav=k;arg=null;per=null;SEL.h.clear();SEL.p.clear();draw(true)};
 /* run: protege contra duplo clique / Enter repetido (ignora enquanto a ação anterior não terminou) */
 const run=f=>{let busy=false;return async(...a)=>{if(busy)return;busy=true;try{await f(...a)}catch(e){console.error(e)}finally{busy=false}}};
 
+/* ---------- CAPTCHA (Cloudflare Turnstile): só ativa quando config.js tem a chave pública ---------- */
+const TSK=String(window.TURNSTILE_SITE_KEY||'').trim();let TSW=null,TSN=0;
+const tsBox=()=>TSK?'<div id="ts" style="margin:8px 0 4px;min-height:65px"></div>':'';
+function tsRender(){
+  TSW=null;if(!TSK)return;const n=++TSN;
+  if(!window.turnstile&&!document.getElementById('tsjs')){const s=document.createElement('script');s.id='tsjs';s.src='https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';s.async=true;document.head.appendChild(s)}
+  const t0=Date.now(),tryRender=()=>{const el=document.getElementById('ts');if(n!==TSN||!el||Date.now()-t0>15000)return;if(window.turnstile){try{TSW=turnstile.render(el,{sitekey:TSK,theme:'auto'})}catch(e){}}else setTimeout(tryRender,200)};tryRender();
+}
+const tsToken=()=>{try{return TSK&&TSW!==null?(turnstile.getResponse(TSW)||''):''}catch(e){return ''}};
+const tsReset=()=>{try{if(TSW!==null)turnstile.reset(TSW)}catch(e){}};
+
 const shell=h=>{
   const T=[['home','Início','home'],['nova','Nova','plus'],['pac','Pacientes','users'],['hist','Histórico','clock'],['cad','Cadastros','grid'],['conta','Conta','user']];
   const on=k=>nav===k||(nav==='edit'&&k==='hist')||(nav==='prod'&&k==='cad');
@@ -156,8 +168,9 @@ async function draw(swr){
   if(!session){
     RECOV=false;
     $.innerHTML=LM==='forgot'
-     ?`<div class="login"><div class="card">${brand}<h3>Recuperar senha</h3><div class="m">Informe seu e-mail e enviaremos um link para criar uma nova senha.</div><label>E-mail</label><input id="fg_em" type="email" autocomplete="username"><button class="b" onclick="esqueci()">Enviar link</button><div style="margin-top:8px"><a class="l" onclick="LM='login';draw()">← Voltar ao login</a></div></div></div>`
-     :`<div class="login"><div class="card">${brand}<label>E-mail</label><input id="em" type="email" autocomplete="username"><label>Senha</label><input id="pw" type="password" autocomplete="current-password"><button class="b" onclick="login()">Entrar</button><div style="margin-top:8px"><a class="l" onclick="LM='forgot';draw()">Esqueci minha senha</a></div></div></div>`;
+     ?`<div class="login"><div class="card">${brand}<h3>Recuperar senha</h3><div class="m">Informe seu e-mail e enviaremos um link para criar uma nova senha.</div><label>E-mail</label><input id="fg_em" type="email" autocomplete="username">${tsBox()}<button class="b" onclick="esqueci()">Enviar link</button><div style="margin-top:8px"><a class="l" onclick="LM='login';draw()">← Voltar ao login</a></div></div></div>`
+     :`<div class="login"><div class="card">${brand}<label>E-mail</label><input id="em" type="email" autocomplete="username"><label>Senha</label><input id="pw" type="password" autocomplete="current-password">${tsBox()}<button class="b" onclick="login()">Entrar</button><div style="margin-top:8px"><a class="l" onclick="LM='forgot';draw()">Esqueci minha senha</a></div></div></div>`;
+    tsRender();
     return}
   if(RECOV){
     $.innerHTML=`<div class="login"><div class="card">${brand}<h3>Definir nova senha</h3><label>Nova senha (mínimo 8 caracteres)</label><input id="rec_n" type="password" autocomplete="new-password"><label>Confirmar nova senha</label><input id="rec_c" type="password" autocomplete="new-password"><button class="b" onclick="novaSenhaRec()">Salvar nova senha</button><div style="margin-top:8px"><a class="l" onclick="sair()">Cancelar</a></div></div></div>`;
@@ -172,14 +185,17 @@ async function draw(swr){
   if(h!==shown)paint(h);
 }
 window.login=run(async()=>{
-  const{data,error}=await sb.auth.signInWithPassword({email:G('em').trim(),password:G('pw')});
-  if(error)return alert(/bloquead|tentativas/i.test(error.message||'')?error.message:'E-mail ou senha incorretos.');
-  SESS=data.session;VC={};draw()});
+  const cap=tsToken();if(TSK&&!cap)return alert('Confirme a verificação de segurança antes de entrar.');
+  const{data,error}=await sb.auth.signInWithPassword({email:G('em').trim(),password:G('pw'),options:cap?{captchaToken:cap}:undefined});
+  if(error){tsReset();const m=error.message||'';return alert(/captcha/i.test(m)?'A verificação de segurança falhou. Tente de novo.':(error.status===429||/rate limit|bloquead|tentativas/i.test(m))?'Muitas tentativas seguidas. Aguarde alguns minutos e tente de novo.':'E-mail ou senha incorretos.')}
+  SESS=data.session;VC={};touch();draw()});
 window.sair=run(async()=>{await sb.auth.signOut();SESS=null;VC={};RECOV=false;LM='login';draw()});
 window.esqueci=run(async()=>{
   const e=G('fg_em').trim();if(!e)return alert('Informe seu e-mail.');
-  const{error}=await sb.auth.resetPasswordForEmail(e,{redirectTo:location.origin+location.pathname});
-  if(error&&/rate|limit|seconds/i.test(error.message||''))return alert('Muitas solicitações em pouco tempo. Aguarde alguns minutos e tente de novo.');
+  const cap=tsToken();if(TSK&&!cap)return alert('Confirme a verificação de segurança antes de enviar.');
+  const{error}=await sb.auth.resetPasswordForEmail(e,{redirectTo:location.origin+location.pathname,captchaToken:cap||undefined});
+  if(error&&/captcha/i.test(error.message||'')){tsReset();return alert('A verificação de segurança falhou. Tente de novo.')}
+  if(error&&/rate|limit|seconds/i.test(error.message||'')){tsReset();return alert('Muitas solicitações em pouco tempo. Aguarde alguns minutos e tente de novo.')}
   alert('Se este e-mail estiver cadastrado, você receberá um link para criar uma nova senha. Confira também o spam.');LM='login';draw()});
 const senhaOk=(a,b)=>{if(a.length<8){alert('A senha precisa ter pelo menos 8 caracteres.');return false}if(a!==b){alert('As senhas não coincidem.');return false}return true};
 window.novaSenhaRec=run(async()=>{
@@ -566,5 +582,24 @@ const liveIds=/^f_(mg|im|ou|tt|dv|dp|ca|px|pa|cb|fm)$/;
 document.addEventListener('input',e=>{const id=e.target.id||'';if(!['pk_q','cad_q'].includes(id)&&!id.startsWith('cx_'))DIRTY=true;if(nav==='edit'&&liveIds.test(id))liveSched()});
 document.addEventListener('change',e=>{const id=e.target.id||'';if(nav==='edit'&&liveIds.test(id))liveSched()});
 sb.auth.onAuthStateChange((ev,s)=>{SESS=s;if(ev==='PASSWORD_RECOVERY'){RECOV=true;setTimeout(draw,0)}else if(ev==='SIGNED_OUT'){VC={};setTimeout(draw,0)}});
-draw();
+
+/* ---------- Sessão: sai sozinho se o app ficou fechado ou em segundo plano por mais de 5 minutos ---------- */
+/* Um "visto por último" é gravado a cada 20 s enquanto o app está rodando. Com o app fechado (ou o celular
+   com o app em segundo plano) nada é gravado; ao voltar, se passou de 5 min, a sessão deste aparelho é encerrada. */
+const LS_SEEN='consultorio_visto',AWAY_MS=5*60*1000;
+const touch=()=>{try{localStorage.setItem(LS_SEEN,String(Date.now()))}catch(e){}};
+async function checkAway(){
+  if(RECOV)return false;
+  let last=0;try{last=Number(localStorage.getItem(LS_SEEN))||0}catch(e){}
+  if(!last||Date.now()-last<=AWAY_MS)return false;
+  if(!(await ensure()))return false;
+  try{await sb.auth.signOut({scope:'local'})}catch(e){}
+  SESS=null;VC={};LM='login';nav='home';arg=null;return true;
+}
+const tick=async()=>{if(await checkAway())draw();else touch()};
+setInterval(tick,20000);
+document.addEventListener('visibilitychange',()=>{if(document.hidden)touch();else tick()});
+window.addEventListener('pageshow',tick);
+window.addEventListener('pagehide',touch);
+(async()=>{await checkAway();touch();draw()})();
 </script></body></html>
