@@ -2,6 +2,7 @@
 <html lang="pt-BR"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <title>Gestão do Consultório · Dr. Higor Arruda</title>
+<link rel="preconnect" href="https://lriuxkkcpeavmtzgwlno.supabase.co" crossorigin><link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#4f5bff">
 <meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Consultório">
 <style>
@@ -43,8 +44,20 @@ input[type=date]::-webkit-date-and-time-value{text-align:left}
 button.b{padding:11px 16px;border:0;border-radius:12px;background:var(--a);color:var(--bt);font:inherit;font-weight:600;margin:4px 6px 4px 0;cursor:pointer;transition:transform .1s,filter .15s}
 button.b:hover{filter:brightness(1.07)}button.b:active{transform:scale(.97)}
 button.g{background:var(--c);color:var(--a);border:1px solid var(--b)}
+button.bd{background:var(--bad);color:#fff}
 button.sm{padding:8px 12px;font-size:13.5px}
 button.x{background:none;border:0;color:var(--bad);padding:4px 8px;cursor:pointer;font:inherit}
+button.xx{background:none;border:0;color:var(--m);opacity:.5;padding:4px 8px;cursor:pointer;font:inherit;font-size:15px;line-height:1;flex:0 0 auto}
+button.xx:hover{opacity:1;color:var(--bad)}
+.ck{display:flex;align-items:center;flex:0 0 auto;margin:0;cursor:pointer}.ck input{margin:0 8px 0 0}
+.grow{flex:1;min-width:0}
+.bar{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:0 0 10px;border-bottom:1px solid var(--b);margin-bottom:2px;min-height:44px}
+.bar button{margin:0}
+.alerta{background:var(--wnb);color:var(--wn);border-radius:12px;padding:10px 12px;margin:8px 0 4px;font-size:13.5px;line-height:1.4}
+.ov{position:fixed;inset:0;background:rgba(10,12,30,.55);display:grid;place-items:center;padding:16px;z-index:50}
+.md{background:var(--c);color:var(--t);border-radius:18px;padding:18px;width:100%;max-width:460px;max-height:86vh;overflow:auto;box-shadow:0 20px 60px rgba(0,0,0,.35)}
+.md .mb{font-size:14px;margin-bottom:10px}.md .mb ul{margin:6px 0;padding-left:18px}.md .ma{display:flex;justify-content:flex-end;gap:6px;margin-top:6px}
+.md label.bk{display:flex;align-items:center;margin:4px 0 8px}
 .kg{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin:12px 0}.kg>.card{margin:0}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
@@ -63,7 +76,7 @@ a.l{color:var(--a);cursor:pointer;font-weight:500}
 .seg .on{background:var(--c);color:var(--a);font-weight:600;box-shadow:var(--sh)}
 .chips{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
 .chip{border:1px solid var(--b);background:var(--c);color:var(--t);padding:8px 13px;border-radius:99px;font:inherit;font-size:13.5px;cursor:pointer;transition:background .15s}
-.chip.on{background:var(--a);border-color:var(--a);color:var(--bt)}.chip.sm{font-size:12.5px;padding:6px 11px}
+.chip.on{background:var(--a);border-color:var(--a);color:var(--bt)}
 .pk{background:var(--bg);border-radius:14px;padding:12px;margin:8px 0}
 .plist{max-height:300px;overflow:auto;border:1px solid var(--b);border-radius:12px;background:var(--c)}
 .prow{display:flex;justify-content:space-between;gap:10px;padding:11px 12px;border-bottom:1px solid var(--b);cursor:pointer}.prow:last-child{border:0}
@@ -73,7 +86,6 @@ details.cat{border:1px solid var(--b);border-radius:14px;margin:8px 0;padding:0 
 details.cat summary{display:flex;justify-content:space-between;align-items:center;padding:14px 0;cursor:pointer;font-weight:600;list-style:none}
 details.cat summary::-webkit-details-marker{display:none}details.cat[open]>summary{border-bottom:1px solid var(--b)}
 details.cat>button{margin:10px 0 12px}
-.subh{font-weight:600;font-size:13px;margin:14px 0 2px;display:flex;justify-content:space-between;align-items:center}
 .e{padding:8px 0}.sh{display:flex;justify-content:space-between;align-items:center;gap:8px}
 .info{overflow-wrap:anywhere;background:var(--a2);border-radius:12px;padding:10px 12px;margin:6px 0 8px;font-size:13.5px}
 .nota{margin-top:4px}.nota summary{cursor:pointer;color:var(--a)}
@@ -88,42 +100,93 @@ details.cat>button{margin:10px 0 12px}
 const sb=supabase.createClient('https://lriuxkkcpeavmtzgwlno.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxyaXV4a2tjcGVhdm10emd3bG5vIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTUyMjg3MTUsImV4cCI6MjExMDgwNDcxNX0.1IUTkB4oVzqRddfcGmLD09NA9rCpBmgrCbZ9u9wlHUY');
 const $=document.getElementById('app'),G=i=>document.getElementById(i)?.value??'';
 const R=v=>Number(v||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+/* N: texto -> número (vazio vira 0 nas contas). P: vazio vira null. */
 const N=v=>{let s=String(v??'').trim();if(s.includes(','))s=s.replace(/\./g,'').replace(',','.');return parseFloat(s)||0};
 const P=v=>String(v??'').trim()===''?null:N(v);
+const r2=x=>Math.round((Number(x)||0)*100)/100,r4=x=>Math.round((Number(x)||0)*10000)/10000;
+/* campos numéricos: 0/vazio aparecem vazios (o 0 é só placeholder) */
+const nv=v=>(v==null||v===''||Number(v)===0)?'':String(v).replace('.',',');
+const mon=x=>x?Number(x).toFixed(2).replace('.',','):'';
+const pctv=x=>x?String(+Number(x).toFixed(2)).replace('.',','):'';
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const ST={orcamento:'Orçamento',em_andamento:'Em andamento',concluida:'Concluída',cancelada:'Cancelada'};
 const hoje=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
 const fd=s=>s?String(s).slice(0,10).split('-').reverse().join('/'):'';
 const norm=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
 const CATS=[['toxinas','Toxinas'],['preenchedores','Preenchedores'],['bioestimuladores','Bioestimuladores'],['biorremodeladores','Biorremodeladores'],['skinboosters','SkinBoosters'],['intradermoterapia','Intradermoterapia'],['consumo','Itens de consumo']];
-const SUBS=[['canulas','Cânulas'],['agulhas_botox','Agulhas de Botox'],['descartaveis','Descartáveis']];
 const catNome=c=>(CATS.find(x=>x[0]===c)||[0,c])[1];
-const IC={home:'<path d="M3 11l9-8 9 8v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/>',plus:'<circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/>',users:'<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 3-6 6.5-6s6.5 2.4 6.5 6"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M18 14c2.2.6 3.5 2.4 3.5 6"/>',clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',grid:'<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>',dollar:'<circle cx="12" cy="12" r="9"/><path d="M14.5 9.2a2.6 2 0 0 0-2.5-1.4c-1.5 0-2.5.8-2.5 2s1 1.7 2.5 2 2.5.8 2.5 2-1 2-2.5 2a2.7 2 0 0 1-2.5-1.4M12 6v1.8M12 16.2V18"/>',trend:'<path d="M3 17l6-6 4 4 8-8M15 7h6v6"/>',receipt:'<path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/>',check:'<circle cx="12" cy="12" r="9"/><path d="M8 12.5l3 3 5-6"/>',ticket:'<path d="M3 8a2 2 0 0 0 0 8v2h18v-2a2 2 0 0 1 0-8V6H3z"/><path d="M13 6v12" stroke-dasharray="2 2"/>',pct:'<path d="M19 5L5 19"/><circle cx="7" cy="7" r="2.5"/><circle cx="17" cy="17" r="2.5"/>',hourglass:'<path d="M6 3h12M6 21h12M7 3c0 5 5 6 5 9s-5 4-5 9M17 3c0 5-5 6-5 9s5 4 5 9"/>'};
+const IC={home:'<path d="M3 11l9-8 9 8v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/>',plus:'<circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/>',users:'<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 3-6 6.5-6s6.5 2.4 6.5 6"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M18 14c2.2.6 3.5 2.4 3.5 6"/>',clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',grid:'<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>',user:'<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/>',dollar:'<circle cx="12" cy="12" r="9"/><path d="M14.5 9.2a2.6 2 0 0 0-2.5-1.4c-1.5 0-2.5.8-2.5 2s1 1.7 2.5 2 2.5.8 2.5 2-1 2-2.5 2a2.7 2 0 0 1-2.5-1.4M12 6v1.8M12 16.2V18"/>',trend:'<path d="M3 17l6-6 4 4 8-8M15 7h6v6"/>',receipt:'<path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/>',check:'<circle cx="12" cy="12" r="9"/><path d="M8 12.5l3 3 5-6"/>',ticket:'<path d="M3 8a2 2 0 0 0 0 8v2h18v-2a2 2 0 0 1 0-8V6H3z"/><path d="M13 6v12" stroke-dasharray="2 2"/>',pct:'<path d="M19 5L5 19"/><circle cx="7" cy="7" r="2.5"/><circle cx="17" cy="17" r="2.5"/>',hourglass:'<path d="M6 3h12M6 21h12M7 3c0 5 5 6 5 9s-5 4-5 9M17 3c0 5-5 6-5 9s5 4 5 9"/>'};
 const ic=(k,s=20)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${IC[k]}</svg>`;
 const brand=`<div class="brand"><div class="logo">HA</div><div><div class="bn">Dr. Higor Arruda</div><div class="bs">Gestão do consultório</div></div></div>`;
 let nav='home',arg=null,per=null;
 let DIRTY=false,SW=null,ANIM='';
-let PK={on:false,cat:'',sub:'',q:'',sel:null,pid:null},PL=[],DIA=null,CAD=[],cadQ='',cadOpen={};
+let PK={on:false,cat:'',q:'',sel:null,pid:null},PL=[],DIA=null,CAD=[],cadQ='',cadOpen={};
+let SESS,RECOV=/type=recovery/.test(location.hash),LM='login',VC={},DRAWN=0,PC=null,DL='v';
+const SEL={h:new Set(),p:new Set()},VIS={h:[],p:[]};
 async function q(p){const{data,error}=await p;if(error){alert(error.message);throw error}return data}
-const go=(v,a=null)=>{nav=v;arg=a;if(v!=='home')per=null;draw()};
-const run=f=>async(...a)=>{try{await f(...a)}catch(e){console.error(e)}};
+const ensure=async()=>{if(SESS===undefined)SESS=(await sb.auth.getSession()).data.session;return SESS};
+/* go: navegação normal (sempre dados novos). tab: troca de aba (mostra o último conteúdo na hora e atualiza em seguida) */
+const go=(v,a=null)=>{nav=v;arg=a;if(v!=='home')per=null;SEL.h.clear();SEL.p.clear();VC={};draw()};
+const tab=k=>{nav=k;arg=null;per=null;SEL.h.clear();SEL.p.clear();draw(true)};
+/* run: protege contra duplo clique / Enter repetido (ignora enquanto a ação anterior não terminou) */
+const run=f=>{let busy=false;return async(...a)=>{if(busy)return;busy=true;try{await f(...a)}catch(e){console.error(e)}finally{busy=false}}};
 
-async function draw(){
-  const{data:{session}}=await sb.auth.getSession();
-  if(!session){$.innerHTML=`<div class="login"><div class="card">${brand}<label>E-mail</label><input id="em" type="email" autocomplete="username"><label>Senha</label><input id="pw" type="password" autocomplete="current-password"><button class="b" onclick="login()">Entrar</button></div></div>`;return}
-  const V={home:vHome,nova:vNova,pac:vPac,hist:vHist,edit:vEdit,cad:vCad,prod:vProd}[nav];
-  let h='';try{h=await V(arg)}catch(e){console.error(e);h='<div class="card bad">Não foi possível carregar. Verifique a conexão.</div>'}
-  const T=[['home','Início','home'],['nova','Nova','plus'],['pac','Pacientes','users'],['hist','Histórico','clock'],['cad','Cadastros','grid']];
+const shell=h=>{
+  const T=[['home','Início','home'],['nova','Nova','plus'],['pac','Pacientes','users'],['hist','Histórico','clock'],['cad','Cadastros','grid'],['conta','Conta','user']];
   const on=k=>nav===k||(nav==='edit'&&k==='hist')||(nav==='prod'&&k==='cad');
-  $.innerHTML=`<div class="shell"><aside class="side">${brand}<nav>${T.map(([k,t,i])=>`<button class="${on(k)?'on':''}" onclick="go('${k}')">${ic(i,22)}<span>${t}</span></button>`).join('')}</nav></aside><main><div class="mtop">${brand}</div>${h}</main></div>`;
-  if(nav==='edit'){pkRender();diaInfo()}
+  return`<div class="shell"><aside class="side">${brand}<nav>${T.map(([k,t,i])=>`<button class="${on(k)?'on':''}" onclick="tab('${k}')">${ic(i,22)}<span>${t}</span></button>`).join('')}</nav></aside><main><div class="mtop">${brand}</div>${h}</main></div>`;
+};
+function paint(h){
+  $.innerHTML=shell(h);
+  if(nav==='edit'){pkRender();diaInfo();syncDescUI()}
   if(nav==='cad')cadRender();
+  if(nav==='hist')selUI('h');if(nav==='pac'&&!arg)selUI('p');
   DIRTY=false;const mm=document.querySelector('main');if(mm&&ANIM)mm.classList.add('sw'+ANIM);ANIM='';
 }
-window.login=run(async()=>{const{error}=await sb.auth.signInWithPassword({email:G('em'),password:G('pw')});if(error)return alert('E-mail ou senha incorretos.');draw()});
-window.sair=run(async()=>{await sb.auth.signOut();draw()});
+async function draw(swr){
+  const my=++DRAWN,session=await ensure();
+  if(my!==DRAWN)return;
+  if(!session){
+    RECOV=false;
+    $.innerHTML=LM==='forgot'
+     ?`<div class="login"><div class="card">${brand}<h3>Recuperar senha</h3><div class="m">Informe seu e-mail e enviaremos um link para criar uma nova senha.</div><label>E-mail</label><input id="fg_em" type="email" autocomplete="username"><button class="b" onclick="esqueci()">Enviar link</button><div style="margin-top:8px"><a class="l" onclick="LM='login';draw()">← Voltar ao login</a></div></div></div>`
+     :`<div class="login"><div class="card">${brand}<label>E-mail</label><input id="em" type="email" autocomplete="username"><label>Senha</label><input id="pw" type="password" autocomplete="current-password"><button class="b" onclick="login()">Entrar</button><div style="margin-top:8px"><a class="l" onclick="LM='forgot';draw()">Esqueci minha senha</a></div></div></div>`;
+    return}
+  if(RECOV){
+    $.innerHTML=`<div class="login"><div class="card">${brand}<h3>Definir nova senha</h3><label>Nova senha (mínimo 8 caracteres)</label><input id="rec_n" type="password" autocomplete="new-password"><label>Confirmar nova senha</label><input id="rec_c" type="password" autocomplete="new-password"><button class="b" onclick="novaSenhaRec()">Salvar nova senha</button><div style="margin-top:8px"><a class="l" onclick="sair()">Cancelar</a></div></div></div>`;
+    return}
+  const V={home:vHome,nova:vNova,pac:vPac,hist:vHist,edit:vEdit,cad:vCad,prod:vProd,conta:vConta}[nav];
+  const k=[nav,arg,per,py,pm,cadQ].join('|'),cacheable=['home','pac','hist','cad'].includes(nav);
+  let shown=null;
+  if(swr&&cacheable&&VC[k]!=null){shown=VC[k];paint(shown)}
+  let h='';try{h=await V(arg)}catch(e){console.error(e);h='<div class="card bad">Não foi possível carregar. Verifique a conexão.</div>'}
+  if(my!==DRAWN)return;
+  if(cacheable)VC[k]=h;
+  if(h!==shown)paint(h);
+}
+window.login=run(async()=>{
+  const{data,error}=await sb.auth.signInWithPassword({email:G('em').trim(),password:G('pw')});
+  if(error)return alert(/bloquead|tentativas/i.test(error.message||'')?error.message:'E-mail ou senha incorretos.');
+  SESS=data.session;VC={};draw()});
+window.sair=run(async()=>{await sb.auth.signOut();SESS=null;VC={};RECOV=false;LM='login';draw()});
+window.esqueci=run(async()=>{
+  const e=G('fg_em').trim();if(!e)return alert('Informe seu e-mail.');
+  const{error}=await sb.auth.resetPasswordForEmail(e,{redirectTo:location.origin+location.pathname});
+  if(error&&/rate|limit|seconds/i.test(error.message||''))return alert('Muitas solicitações em pouco tempo. Aguarde alguns minutos e tente de novo.');
+  alert('Se este e-mail estiver cadastrado, você receberá um link para criar uma nova senha. Confira também o spam.');LM='login';draw()});
+const senhaOk=(a,b)=>{if(a.length<8){alert('A senha precisa ter pelo menos 8 caracteres.');return false}if(a!==b){alert('As senhas não coincidem.');return false}return true};
+window.novaSenhaRec=run(async()=>{
+  if(!senhaOk(G('rec_n'),G('rec_c')))return;
+  const{error}=await sb.auth.updateUser({password:G('rec_n')});
+  if(error)return alert(error.message);
+  RECOV=false;history.replaceState(null,'',location.pathname);alert('Senha alterada. Você já está conectado.');nav='home';arg=null;VC={};draw()});
+window.trocaSenha=run(async()=>{
+  if(!senhaOk(G('cp_n'),G('cp_c')))return;
+  const{error}=await sb.auth.updateUser({password:G('cp_n')});
+  if(error)return alert(error.message);
+  document.getElementById('cp_n').value='';document.getElementById('cp_c').value='';alert('Senha alterada com sucesso.')});
 
-/* ---------- Início (indicadores só de concluídas + bloco de orçamentos abertos) ---------- */
+/* ---------- Início (indicadores só de concluídas + blocos por status) ---------- */
 const MES=['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
 let py=null,pm=null;
 async function vHome(){
@@ -164,40 +227,92 @@ window.criar=run(async()=>{
 });
 window.novaPara=run(async pid=>{const pr=prompt('Nome do procedimento');if(!pr)return;go('edit',(await q(sb.from('precificacoes').insert({paciente_id:pid,procedimento:pr,status:'em_andamento'}).select('id').single())).id)});
 
+/* ---------- Seleção e exclusão (individual e em lote) ---------- */
+window.selTog=(k,id,on)=>{on?SEL[k].add(id):SEL[k].delete(id);selUI(k)};
+window.selAll=(k,on)=>{SEL[k]=new Set(on?VIS[k]:[]);document.querySelectorAll('input.sel[data-k="'+k+'"]').forEach(c=>c.checked=on);selUI(k)};
+function selUI(k){const n=SEL[k].size,b=document.getElementById('selbtn'),a=document.getElementById('selall');if(b){b.hidden=!n;b.textContent='Excluir selecionados ('+n+')'}if(a)a.checked=n>0&&n===VIS[k].length}
+const bar=k=>`<div class="bar"><label class="ck"><input type="checkbox" id="selall" onchange="selAll('${k}',this.checked)"> Selecionar todos</label><button id="selbtn" class="b sm bd" onclick="excluir('${k}',[...SEL.${k}])" hidden>Excluir selecionados</button></div>`;
+const ckx=(k,id)=>`<label class="ck" title="Selecionar"><input type="checkbox" class="sel" data-k="${k}" ${SEL[k].has(id)?'checked':''} onchange="selTog('${k}','${id}',this.checked)"></label>`;
+const xbtn=(k,id)=>`<button class="xx" title="Excluir" aria-label="Excluir" onclick="excluir('${k}',['${id}'])">✕</button>`;
+function caixa({titulo,html,ok='Excluir',motivo=false}){
+  return new Promise(res=>{
+    const o=document.createElement('div');o.className='ov';
+    o.innerHTML=`<div class="md" role="dialog" aria-modal="true"><h3>${titulo}</h3><div class="mb">${html}</div>${motivo?'<label>Motivo da exclusão (fica registrado)</label><input id="cx_m" autocomplete="off">':''}<label class="bk"><input type="checkbox" id="cx_b"> Baixar um backup antes de excluir</label><div class="ma"><button class="b g" id="cx_c">Cancelar</button><button class="b bd" id="cx_o">${ok}</button></div></div>`;
+    document.body.appendChild(o);
+    const fim=v=>{o.remove();document.removeEventListener('keydown',onEsc);res(v)};
+    const onEsc=e=>{if(e.key==='Escape')fim(null)};
+    document.addEventListener('keydown',onEsc);
+    o.querySelector('#cx_c').onclick=()=>fim(null);
+    o.addEventListener('click',e=>{if(e.target===o)fim(null)});
+    o.querySelector('#cx_o').onclick=()=>{const m=(o.querySelector('#cx_m')?.value||'').trim();if(motivo&&!m){alert('Informe o motivo da exclusão.');return}fim({motivo:m,backup:o.querySelector('#cx_b').checked})};
+    o.querySelector('#cx_c').focus();
+  });
+}
+const resumoP=l=>{const c={};l.forEach(x=>c[x.status]=(c[x.status]||0)+1);return Object.entries(c).map(([s,n])=>n+' '+(ST[s]||s).toLowerCase()).join(', ')};
+/* k='h' exclui precificações; k='p' exclui pacientes (e as precificações vinculadas). volta=[tela,arg] opcional */
+window.excluir=run(async(k,ids,volta)=>{
+  if(!ids||!ids.length)return;
+  const col=k==='h'?'id':'paciente_id';
+  const precs=await q(sb.from('precificacoes').select('id,procedimento,status,versao_vigente,paciente_id,pacientes(nome)').in(col,ids));
+  const conc=precs.filter(x=>x.status==='concluida'||x.versao_vigente>0);
+  let imp={n:0,fat:0,luc:0};
+  if(precs.length){const v=await q(sb.from('vw_concluidas').select('valor_total_cobrado,lucro_real').in('precificacao_id',precs.map(x=>x.id)));imp={n:v.length,fat:v.reduce((s,x)=>s+Number(x.valor_total_cobrado),0),luc:v.reduce((s,x)=>s+Number(x.lucro_real),0)}}
+  let lista;
+  if(k==='p'){
+    const ps=await q(sb.from('pacientes').select('id,nome').in('id',ids));
+    lista=ps.map(p=>{const m=precs.filter(x=>x.paciente_id===p.id);return`<li><b>${esc(p.nome)}</b> — ${m.length?m.length+' precificação(ões) vinculada(s) serão excluídas junto ('+resumoP(m)+')':'sem precificações vinculadas'}</li>`}).join('');
+  }else lista=precs.map(x=>`<li>${esc(x.pacientes?.nome||'')} · ${esc(x.procedimento)} <span class="m">(${ST[x.status]})</span></li>`).join('');
+  const total=k==='h'?ids.length:ids.length;
+  let html=`<div>${k==='h'?'Serão excluídas':'Serão excluídos'} <b>${total}</b> ${k==='h'?'precificação(ões)':'paciente(s)'}:</div><ul>${lista}</ul>`;
+  if(k==='p'&&precs.length)html+=`<div class="info">Total de <b>${precs.length}</b> precificação(ões) vinculada(s) serão apagadas junto, com suas sessões e materiais.</div>`;
+  else if(precs.length)html+=`<div class="m">As sessões e materiais ligados serão apagados. Se o custo do dia era dividido com outras precificações em aberto, ele é redistribuído entre elas.</div>`;
+  if(imp.n)html+=`<div class="alerta">Atenção: isso remove do Início <b>${imp.n}</b> tratamento(s) concluído(s), <b>${R(imp.fat)}</b> de faturamento e <b>${R(imp.luc)}</b> de lucro. Se só quer tirar da lista, use ARQUIVAR (continua contando).</div>`;
+  html+=`<div class="m">Esta ação não pode ser desfeita.</div>`;
+  const r=await caixa({titulo:'Confirmar exclusão',html,ok:'Excluir definitivamente',motivo:conc.length>0});
+  if(!r)return;
+  if(r.backup)await backup();
+  await q(sb.rpc(k==='h'?'excluir_precificacoes_lote':'excluir_pacientes_lote',{p_ids:ids,p_motivo:r.motivo||null}));
+  SEL[k].clear();
+  if(volta)go(volta[0],volta[1]);else go(nav,arg);
+});
+
 /* ---------- Pacientes ---------- */
 async function vPac(id){
   if(id&&id!=='arq'){
     const[p,l]=await Promise.all([q(sb.from('pacientes').select('*').eq('id',id).single()),q(sb.from('precificacoes').select('id,procedimento,status,valor_total_cobrado,criado_em,concluida_em').eq('paciente_id',id).order('criado_em',{ascending:false}))]);
     return`<a class="l" onclick="go('pac')">← Pacientes</a><div class="ph"><h2>${esc(p.nome)}</h2><div class="m">${esc(p.telefone||'')} · cadastrado em ${new Date(p.criado_em).toLocaleDateString('pt-BR')}</div></div>
-    <button class="b" onclick="novaPara('${id}')">Nova precificação</button><button class="b g" onclick="arq('pacientes','${id}',${!p.arquivado},'pac')">${p.arquivado?'Desarquivar':'Arquivar'}</button><button class="x" onclick="excPac('${id}')">Excluir definitivamente</button><div class="card"><h3>Precificações</h3>${rowsP(l)||'<span class="m">Nenhuma ainda.</span>'}</div>`;
+    <button class="b" onclick="novaPara('${id}')">Nova precificação</button><button class="b g" onclick="arq('pacientes','${id}',${!p.arquivado},'pac')">${p.arquivado?'Desarquivar':'Arquivar'}</button><button class="x" onclick="excluir('p',['${id}'],['pac',null])">Excluir definitivamente</button><div class="card"><h3>Precificações</h3>${rowsP(l)||'<span class="m">Nenhuma ainda.</span>'}</div>`;
   }
   const l=await q(sb.from('pacientes').select('id,nome,telefone').eq('arquivado',id==='arq').order('nome'));
+  VIS.p=l.map(p=>p.id);
   return`<div class="ph"><h2>Pacientes</h2></div><div class="card"><input id="p_n" placeholder="Nome"><input id="p_t" placeholder="Telefone (opcional)" inputmode="tel"><button class="b" onclick="addPac()">Cadastrar</button></div>
-  <div class="card">${l.map(p=>`<div class="row"><a class="l" onclick="go('pac','${p.id}')">${esc(p.nome)}</a><span class="m">${esc(p.telefone||'')}</span></div>`).join('')||'<span class="m">Nenhum paciente.</span>'}</div><a class="l" onclick="go('pac',${id==='arq'?'null':"'arq'"})">${id==='arq'?'← Pacientes ativos':'Ver arquivados'}</a>`;
+  <div class="card">${l.length?bar('p'):''}${l.map(p=>`<div class="row">${ckx('p',p.id)}<span class="grow"><a class="l" onclick="go('pac','${p.id}')">${esc(p.nome)}</a></span><span class="m">${esc(p.telefone||'')}</span>${xbtn('p',p.id)}</div>`).join('')||'<span class="m">Nenhum paciente.</span>'}</div><a class="l" onclick="go('pac',${id==='arq'?'null':"'arq'"})">${id==='arq'?'← Pacientes ativos':'Ver arquivados'}</a>`;
 }
 window.addPac=run(async()=>{if(!G('p_n').trim())return;await q(sb.from('pacientes').insert({nome:G('p_n').trim(),telefone:G('p_t').trim()||null}));go('pac')});
 const dt=x=>new Date(x).toLocaleDateString('pt-BR');
-const rowsP=l=>l.map(x=>`<div class="row"><span><a class="l" onclick="go('edit','${x.id}')">${esc(x.pacientes?.nome?x.pacientes.nome+' · ':'')}${esc(x.procedimento)}</a><br><span class="m">Criada em ${dt(x.criado_em)}${x.status==='concluida'&&x.concluida_em?' · concluída em '+dt(x.concluida_em):''}</span></span><span class="r"><span class="tag ${x.status==='concluida'?'ok':x.status==='cancelada'?'':'warn'}">${ST[x.status]}</span> ${x.valor_total_cobrado>0?R(x.valor_total_cobrado):''}</span></div>`).join('');
+const rowsP=(l,k)=>l.map(x=>`<div class="row">${k?ckx(k,x.id):''}<span class="grow"><a class="l" onclick="go('edit','${x.id}')">${esc(x.pacientes?.nome?x.pacientes.nome+' · ':'')}${esc(x.procedimento)}</a><br><span class="m">Criada em ${dt(x.criado_em)}${x.status==='concluida'&&x.concluida_em?' · concluída em '+dt(x.concluida_em):''}</span></span><span class="r"><span class="tag ${x.status==='concluida'?'ok':x.status==='cancelada'?'':'warn'}">${ST[x.status]}</span> ${x.valor_total_cobrado>0?R(x.valor_total_cobrado):''}</span>${k?xbtn(k,x.id):''}</div>`).join('');
 
 /* ---------- Histórico ---------- */
 async function vHist(f){
   let s=sb.from('precificacoes').select('id,procedimento,status,valor_total_cobrado,criado_em,concluida_em,pacientes(nome)').order('criado_em',{ascending:false}).limit(100);
   s=f==='arq'?s.eq('arquivada',true):(f?s.eq('status',f):s).eq('arquivada',false);const l=await q(s);
-  return`<div class="ph"><h2>Histórico</h2></div><select onchange="go('hist',this.value||null)"><option value="">Todas</option>${Object.entries(ST).map(([k,t])=>`<option value="${k}" ${f===k?'selected':''}>${t}</option>`).join('')}<option value="arq" ${f==='arq'?'selected':''}>Arquivadas</option></select>
-  <div class="card">${rowsP(l)||'<span class="m">Nada por aqui.</span>'}</div>`;
+  VIS.h=l.map(x=>x.id);
+  return`<div class="ph"><h2>Histórico de precificações</h2></div><select onchange="go('hist',this.value||null)"><option value="">Todas</option>${Object.entries(ST).map(([k,t])=>`<option value="${k}" ${f===k?'selected':''}>${t}</option>`).join('')}<option value="arq" ${f==='arq'?'selected':''}>Arquivadas</option></select>
+  <div class="card">${l.length?bar('h'):''}${rowsP(l,'h')||'<span class="m">Nada por aqui.</span>'}</div>`;
 }
 
 /* ---------- Produtos (usado no seletor da precificação e nos Cadastros) ---------- */
-async function loadProds(){
+async function loadProds(force){
+  if(!force&&PC&&Date.now()-PC.t<300000)return PC.list;
   const r=await q(sb.from('produtos').select('id,nome,unidade,categoria,subcategoria,produto_precos(preco_embalagem,rendimento,vigente_desde)').eq('ativo',true).order('nome'));
-  return r.map(p=>{const u=[...p.produto_precos].sort((a,b)=>b.vigente_desde.localeCompare(a.vigente_desde))[0]||null;
-    return{id:p.id,nome:p.nome,un:p.unidade||'',cat:p.categoria,sub:p.subcategoria,preco:u?Number(u.preco_embalagem):null,rend:u?Number(u.rendimento):null}})
+  const list=r.map(p=>{const u=[...p.produto_precos].sort((a,b)=>b.vigente_desde.localeCompare(a.vigente_desde))[0]||null;
+    return{id:p.id,nome:p.nome,un:p.unidade||'',cat:p.categoria,preco:u?Number(u.preco_embalagem):null,rend:u?Number(u.rendimento):null}})
    .sort((a,b)=>a.nome.localeCompare(b.nome,'pt-BR',{numeric:true}));
+  PC={list,t:Date.now()};return list;
 }
 const pkInfo=p=>p.preco==null?'sem preço':R(p.preco)+' ÷ '+p.rend+(p.un?' '+esc(p.un):'');
-window.pkToggle=()=>{PK.on=!PK.on;pkRender()};
-window.pkCat=c=>{PK.cat=c;PK.sub='';PK.q='';PK.sel=null;pkRender()};
-window.pkSub=s=>{PK.sub=s;PK.sel=null;pkRender()};
+window.pkToggle=async()=>{PK.on=!PK.on;if(PK.on&&!PL.length){try{PL=await loadProds()}catch(e){PK.on=false}}pkRender()};
+window.pkCat=c=>{PK.cat=c;PK.q='';PK.sel=null;pkRender()};
 window.pkQ=v=>{PK.q=v;pkList()};
 window.pkSel=id=>{PK.sel=id;pkRender();document.getElementById('m_q')?.focus()};
 function pkRender(){
@@ -205,29 +320,35 @@ function pkRender(){
   el.hidden=!PK.on;if(!PK.on)return;
   const sel=PL.find(p=>p.id===PK.sel);
   el.innerHTML=`<div class="m">Categoria</div><div class="chips">${CATS.map(([k,n])=>`<button class="chip ${PK.cat===k?'on':''}" onclick="pkCat('${k}')">${n}</button>`).join('')}</div>
-  ${PK.cat==='consumo'?`<div class="chips">${[['','Todos'],...SUBS].map(([k,n])=>`<button class="chip sm ${PK.sub===k?'on':''}" onclick="pkSub('${k}')">${n}</button>`).join('')}</div>`:''}
   ${PK.cat?`<input id="pk_q" placeholder="Buscar em ${esc(catNome(PK.cat))}…" value="${esc(PK.q)}" oninput="pkQ(this.value)" autocomplete="off"><div id="pk_list" class="plist"></div>`:'<div class="m">Escolha uma categoria para ver os produtos.</div>'}
-  ${sel?`<div class="psel"><div><b>${esc(sel.nome)}</b><div class="m">${pkInfo(sel)}</div></div><input id="m_q" placeholder="Quantidade usada${sel.un?' ('+esc(sel.un)+')':''}" inputmode="decimal"><button class="b" onclick="addMat('${PK.pid}')">Adicionar à precificação</button></div>`:''}`;
+  ${sel?`<div class="psel"><div><b>${esc(sel.nome)}</b><div class="m">${pkInfo(sel)}</div></div><input id="m_q" placeholder="Quantidade usada${sel.un?' ('+esc(sel.un)+')':''}" inputmode="decimal" autocomplete="off"><button class="b" onclick="addMat('${PK.pid}')">Adicionar à precificação</button></div>`:''}`;
   pkList();
 }
 function pkList(){
   const el=document.getElementById('pk_list');if(!el)return;
   const t=norm(PK.q);
-  const l=PL.filter(p=>p.cat===PK.cat&&(!PK.sub||p.sub===PK.sub)&&(!t||norm(p.nome).includes(t)));
+  const l=PL.filter(p=>p.cat===PK.cat&&(!t||norm(p.nome).includes(t)));
   el.innerHTML=l.map(p=>`<div class="prow ${PK.sel===p.id?'on':''}" onclick="pkSel('${p.id}')"><span>${esc(p.nome)}</span><span class="m">${pkInfo(p)}</span></div>`).join('')||'<div class="m" style="padding:10px">Nenhum produto encontrado.</div>';
 }
 
 /* ---------- Editor da precificação ---------- */
+const sugHtml=c=>(c.precos_sugeridos||[]).length?`<div class="m">Preço sugerido por forma de pagamento</div>${c.precos_sugeridos.map(x=>`<div class="row"><span>${x.forma==='pix'?'Pix':x.forma==='debito'?'Débito':x.parcelas+'x crédito'} <span class="m">taxa ${x.taxa_pct}%</span></span><b>${R(x.preco)}</b></div>`).join('')}`:'<div class="m">Informe a margem desejada para ver o preço sugerido.</div>';
+const difHtml=c=>Math.abs(c.diferenca_alocacao)>0.005?`<div class="bad">Cartão + Pix não fecham com o valor final cobrado (diferença ${R(c.diferenca_alocacao)}).</div>`:'';
+const finHtml=c=>`Valor final após desconto: <b>${R(c.valor_cobrado_final)}</b> · Cartão + Pix devem somar esse valor.`;
+const alertaMargem=c=>(c.margem_real_pct!=null&&Number(c.margem_real_pct)<20)?`<div class="alerta" role="alert">Atenção: esta precificação apresenta margem real inferior a 20%. Verifique os custos e o valor cobrado antes de finalizar.</div>`:'';
+const resHtml=c=>[['Materiais',c.materiais_total],['Custo operacional',c.operacional_total],['Outros custos',c.outros_custos],['Custo total',c.custo_total],['Taxa da maquininha ('+c.taxa_cartao_pct+'%)',c.taxa_cartao_valor],['Impostos',c.impostos_valor],['Líquido do cartão',c.f19_liquido_cartao]].map(([t,v])=>`<div class="row"><span>${t}</span><span>${R(v)}</span></div>`).join('')
+ +`<div class="row hl"><b>Lucro real</b><b class="k">${R(c.lucro_real_f22)}</b></div><div class="row"><span>Margem real</span><span>${c.margem_real_pct==null?'—':Number(c.margem_real_pct).toFixed(2).replace('.',',')+'%'}</span></div>${alertaMargem(c)}`;
 async function vEdit(id){
-  const[p,ms,ss,prods,c]=await Promise.all([
+  const[p,ms,ss,c]=await Promise.all([
     q(sb.from('precificacoes').select('*,pacientes(nome)').eq('id',id).single()),
     q(sb.from('precificacao_materiais').select('*').eq('precificacao_id',id).order('nome')),
     q(sb.from('sessoes').select('*,dias_atendimento(data,local)').eq('precificacao_id',id).order('numero')),
-    loadProds(),
     q(sb.rpc('calcular_precificacao',{p_id:id}))]);
-  PL=prods;if(PK.pid!==id)PK={on:false,cat:'',sub:'',q:'',sel:null,pid:id};
+  PL=PC?PC.list:[];if(PK.pid!==id)PK={on:false,cat:'',q:'',sel:null,pid:id};
+  DL='v';
   const L=p.status==='concluida',dis=L?'disabled':'',cs={};(c.sessoes||[]).forEach(x=>cs[x.sessao_id]=x);
-  const f=(i,l,v,ex='')=>`<div><label>${l}</label><input id="${i}" value="${esc(v??'')}" inputmode="decimal" ${dis} ${ex}></div>`;
+  const f=(i,l,v,ph='0,00',ex='')=>`<div><label>${l}</label><input id="${i}" value="${esc(nv(v))}" placeholder="${ph}" inputmode="decimal" autocomplete="off" ${dis} ${ex}></div>`;
+  const orig=p.valor_original??p.valor_total_cobrado,dv=Number(p.desconto_valor||0);
   return`<a class="l" onclick="go('hist')">← Histórico</a><div class="ph"><h2>${esc(p.procedimento)}</h2>
   <div class="m"><a class="l" onclick="go('pac','${p.paciente_id}')">${esc(p.pacientes.nome)}</a> · <span class="tag ${L?'ok':'warn'}">${ST[p.status]}</span>${L?' · bloqueada (snapshot v'+p.versao_vigente+')':''}</div></div>
   <div class="card"><h3>1. Materiais (total do tratamento)</h3>
@@ -240,36 +361,66 @@ async function vEdit(id){
    <div class="grid2"><div><label>Situação</label><select id="s_st"><option>prevista</option><option>realizada</option><option>faltou</option></select></div><label style="padding-top:26px"><input id="s_ct" type="checkbox" checked> contar custo</label></div>
    <button class="b g" onclick="addSes('${id}')">Adicionar sessão</button>`}</div>
   <div class="card"><h3>3. Preço e recebimento</h3>
-   <div class="grid3">${f('f_mg','Margem desejada (%)',p.margem_desejada_pct)}${f('f_im','Impostos (%)',p.impostos_pct)}${f('f_ou','Outros custos (R$)',p.outros_custos)}</div>
-   ${(c.precos_sugeridos||[]).length?`<div class="m">Preço sugerido por forma de pagamento</div>${c.precos_sugeridos.map(x=>`<div class="row"><span>${x.forma==='pix'?'Pix':x.forma==='debito'?'Débito':x.parcelas+'x crédito'} <span class="m">taxa ${x.taxa_pct}%</span></span><b>${R(x.preco)}</b></div>`).join('')}`:'<div class="m">Informe a margem desejada para ver o preço sugerido.</div>'}
+   <div class="grid3">${f('f_mg','Margem desejada (%)',p.margem_desejada_pct,'0')}${f('f_im','Impostos (%)',p.impostos_pct,'0')}${f('f_ou','Outros custos (R$)',p.outros_custos)}</div>
+   <div id="sug">${sugHtml(c)}</div>
    <hr style="border:0;border-top:1px solid var(--b);margin:12px 0">
-   ${f('f_tt','Valor total cobrado (cartão + Pix)',p.valor_total_cobrado)}<div class="grid2">${f('f_ca','No cartão',p.valor_cartao)}${f('f_px','No Pix',p.valor_pix)}</div>
-   <div class="grid2"><div><label>Forma do cartão</label><select id="f_fm" ${dis}><option value="">—</option><option value="debito" ${p.cartao_forma==='debito'?'selected':''}>Débito</option><option value="credito" ${p.cartao_forma==='credito'?'selected':''}>Crédito</option></select></div>${f('f_pa','Parcelas',p.cartao_parcelas)}</div>
+   ${f('f_tt','Valor total cobrado (cartão + Pix)',orig,'0,00','oninput="descT()"')}
+   <div class="grid2">${f('f_dv','Desconto em valor (R$)',dv,'0,00','oninput="descV()"')}${f('f_dp','Desconto em percentual (%)',p.desconto_pct,'0','oninput="descP()"')}</div>
+   <div id="dmsg" class="bad m"></div>
+   <div id="dj" ${dv>0?'':'hidden'}><label>Justificativa do desconto</label><input id="f_dj" value="${esc(p.desconto_justificativa||'')}" placeholder="Ex.: fidelidade, indicação" autocomplete="off" ${dis}></div>
+   ${L?'':`<button id="rmd" class="b g sm" onclick="rmDesc()" ${dv>0?'':'hidden'}>Remover desconto</button>`}
+   <div id="fin" class="info" ${dv>0?'':'hidden'}>${finHtml(c)}</div>
+   <div class="grid2">${f('f_ca','No cartão',p.valor_cartao)}${f('f_px','No Pix',p.valor_pix)}</div>
+   <div class="grid2"><div><label>Forma do cartão</label><select id="f_fm" ${dis}><option value="">—</option><option value="debito" ${p.cartao_forma==='debito'?'selected':''}>Débito</option><option value="credito" ${p.cartao_forma==='credito'?'selected':''}>Crédito</option></select></div><div><label>Parcelas</label><input id="f_pa" value="${esc(p.cartao_parcelas??'')}" placeholder="Ex.: 3" inputmode="numeric" autocomplete="off" ${dis}></div></div>
    ${f('f_cb','Cashback (só aumenta o lucro)',p.cashback)}
-   ${Math.abs(c.diferenca_alocacao)>0.005?`<div class="bad">Cartão + Pix não fecham com o total (diferença ${R(c.diferenca_alocacao)}).</div>`:''}
+   <div id="dif">${difHtml(c)}</div>
    <label>Status</label><select id="f_st" ${dis}>${['orcamento','em_andamento','cancelada'].map(k=>`<option value="${k}" ${p.status===k?'selected':''}>${ST[k]}</option>`).join('')}${L?'<option selected>Concluída</option>':''}</select>
    <input id="f_proc" type="hidden" value="${esc(p.procedimento)}">${L?'':`<button class="b" onclick="salvar('${id}')">Salvar e recalcular</button>`}</div>
   <div class="card"><h3>Resultado</h3>
-   ${[['Materiais',c.materiais_total],['Custo operacional',c.operacional_total],['Outros custos',c.outros_custos],['Custo total',c.custo_total],['Taxa da maquininha ('+c.taxa_cartao_pct+'%)',c.taxa_cartao_valor],['Impostos',c.impostos_valor],['Líquido do cartão',c.f19_liquido_cartao]].map(([t,v])=>`<div class="row"><span>${t}</span><span>${R(v)}</span></div>`).join('')}
-   <div class="row hl"><b>Lucro real</b><b class="k">${R(c.lucro_real_f22)}</b></div><div class="row"><span>Margem real</span><span>${c.margem_real_pct==null?'—':Number(c.margem_real_pct).toFixed(2).replace('.',',')+'%'}</span></div>
-   ${L?`<button class="b g" onclick="reab('${id}')">Reabrir (com motivo)</button>`:p.status!=='cancelada'?`<button class="b" onclick="fin('${id}')">CONCLUIR PRECIFICAÇÃO</button>`:''}<div style="margin-top:10px"><button class="b g" onclick="arq('precificacoes','${id}',${!p.arquivada},'hist')">${p.arquivada?'Desarquivar':'Arquivar'}</button><button class="x" onclick="excPrec('${id}',${p.status==='concluida'||p.versao_vigente>0})">Excluir definitivamente</button></div></div>`;
+   <div id="resv">${resHtml(c)}</div>
+   ${L?`<button class="b g" onclick="reab('${id}')">Reabrir (com motivo)</button>`:p.status!=='cancelada'?`<button class="b" onclick="fin('${id}')">CONCLUIR PRECIFICAÇÃO</button>`:''}<div style="margin-top:10px"><button class="b g" onclick="arq('precificacoes','${id}',${!p.arquivada},'hist')">${p.arquivada?'Desarquivar':'Arquivar'}</button><button class="x" onclick="excluir('h',['${id}'],['hist',null])">Excluir definitivamente</button></div></div>`;
 }
+
+/* ---------- Desconto: valor e percentual são o MESMO desconto (um atualiza o outro; nunca somam) ---------- */
+const setv=(i,v)=>{const e=document.getElementById(i);if(e)e.value=v};
+let DM=null;const dmsg=t=>{const e=document.getElementById('dmsg');if(!e)return;e.textContent=t;clearTimeout(DM);DM=setTimeout(()=>{const x=document.getElementById('dmsg');if(x)x.textContent=''},3500)};
+window.descV=()=>{DL='v';const o=r2(N(G('f_tt')));let v=N(G('f_dv'));
+  if(v>o){v=o;setv('f_dv',mon(v));dmsg(o>0?'O desconto não pode ser maior que o valor original.':'Informe primeiro o valor total cobrado.')}
+  setv('f_dp',pctv(o>0?v/o*100:0));syncDescUI()};
+window.descP=()=>{DL='p';const o=r2(N(G('f_tt')));let p=N(G('f_dp'));
+  if(p>100){p=100;setv('f_dp','100');dmsg('O desconto não pode passar de 100%.')}
+  if(o<=0&&p>0){p=0;setv('f_dp','');dmsg('Informe primeiro o valor total cobrado.')}
+  setv('f_dv',mon(r2(o*p/100)));syncDescUI()};
+window.descT=()=>{const o=r2(N(G('f_tt')));
+  if(DL==='p'){setv('f_dv',mon(r2(o*Math.min(N(G('f_dp')),100)/100)))}
+  else{let v=N(G('f_dv'));if(v>o){v=o;setv('f_dv',mon(v));dmsg('O desconto foi ajustado ao novo valor original.')}setv('f_dp',pctv(o>0?v/o*100:0))}
+  syncDescUI()};
+window.rmDesc=()=>{DL='v';setv('f_dv','');setv('f_dp','');setv('f_dj','');syncDescUI();liveSched()};
+function syncDescUI(){const t=N(G('f_dv'))>0;const a=document.getElementById('dj'),b=document.getElementById('rmd'),c=document.getElementById('fin');
+  if(a)a.hidden=!t;if(b)b.hidden=!t;if(c)c.hidden=!t}
+
+/* ---------- Cálculo em tempo real (nada é gravado até clicar em Salvar) ---------- */
+let LSEQ=0,LT=null;
+const over=()=>{const o=r2(N(G('f_tt')));return{margem_desejada_pct:P(G('f_mg')),impostos_pct:N(G('f_im')),outros_custos:N(G('f_ou')),valor_original:o,desconto_valor:Math.min(r2(N(G('f_dv'))),o),valor_cartao:N(G('f_ca')),valor_pix:N(G('f_px')),cashback:N(G('f_cb')),cartao_forma:G('f_fm')||null,cartao_parcelas:G('f_pa')?parseInt(G('f_pa')):null}};
+function liveSched(){clearTimeout(LT);LT=setTimeout(liveCalc,300)}
+async function liveCalc(){
+  const t=document.getElementById('f_tt');if(nav!=='edit'||!t||t.disabled)return;
+  const my=++LSEQ,id=arg;
+  try{const{data,error}=await sb.rpc('calcular_precificacao',{p_id:id,p_over:over()});
+    if(error||my!==LSEQ||nav!=='edit'||arg!==id)return;
+    const s=(i,h)=>{const e=document.getElementById(i);if(e)e.innerHTML=h};
+    s('sug',sugHtml(data));s('dif',difHtml(data));s('resv',resHtml(data));s('fin',finHtml(data));
+  }catch(e){}
+}
+
 window.arq=run(async(t,id,v,volta)=>{await q(sb.from(t).update(t==='pacientes'?{arquivado:v}:{arquivada:v}).eq('id',id));go(volta)});
-const impacto=async f=>{const r=await q(f);return{n:r.length,fat:r.reduce((s,x)=>s+Number(x.valor_total_cobrado),0),luc:r.reduce((s,x)=>s+Number(x.lucro_real),0)}};
-const confirmaImpacto=async(f,quem)=>{const i=await impacto(f);if(!i.n)return null;
-  if(!confirm(`ATENÇÃO: excluir ${quem} remove do Início ${i.n} tratamento(s) concluído(s), ${R(i.fat)} de faturamento e ${R(i.luc)} de lucro.\n\nSe só quer tirar da lista, use ARQUIVAR (continua contando).\n\nContinuar com a exclusão?`))return false;
-  if(confirm('Baixar um backup antes de excluir? (recomendado)'))await backup();
-  const m=prompt('Motivo da exclusão (fica registrado):');return m||false};
-window.excPrec=run(async id=>{
-  const m=await confirmaImpacto(sb.from('vw_concluidas').select('valor_total_cobrado,lucro_real').eq('precificacao_id',id),'esta precificação');
-  if(m===false)return;if(m===null&&!confirm('Excluir esta precificação?'))return;
-  await q(sb.rpc('excluir_precificacao',{p_id:id,p_motivo:m}));go('hist')});
-window.excPac=run(async id=>{
-  const m=await confirmaImpacto(sb.from('vw_concluidas').select('valor_total_cobrado,lucro_real').eq('paciente_id',id),'este paciente e todo o histórico dele');
-  if(m===false)return;if(m===null&&!confirm('Excluir este paciente e as precificações em aberto dele?'))return;
-  await q(sb.rpc('excluir_paciente',{p_id:id,p_motivo:m}));go('pac')});
 window.salvar=run(async id=>{
-  await q(sb.from('precificacoes').update({status:G('f_st'),margem_desejada_pct:P(G('f_mg')),impostos_pct:N(G('f_im')),outros_custos:N(G('f_ou')),valor_total_cobrado:N(G('f_tt')),valor_cartao:N(G('f_ca')),valor_pix:N(G('f_px')),cashback:N(G('f_cb')),cartao_forma:G('f_fm')||null,cartao_parcelas:G('f_pa')?parseInt(G('f_pa')):null}).eq('id',id));go('edit',id)});
+  const o=r2(N(G('f_tt'))),dv=r2(N(G('f_dv')));
+  if(dv>o)return alert('O desconto não pode ser maior que o valor original.');
+  const d=Math.min(dv,o);
+  await q(sb.from('precificacoes').update({status:G('f_st'),margem_desejada_pct:P(G('f_mg')),impostos_pct:N(G('f_im')),outros_custos:N(G('f_ou')),
+    valor_original:o,desconto_valor:d,desconto_pct:o>0?Math.min(100,r4(d/o*100)):0,desconto_justificativa:d>0?(G('f_dj').trim()||null):null,valor_total_cobrado:r2(o-d),
+    valor_cartao:N(G('f_ca')),valor_pix:N(G('f_px')),cashback:N(G('f_cb')),cartao_forma:G('f_fm')||null,cartao_parcelas:G('f_pa')?parseInt(G('f_pa')):null}).eq('id',id));go('edit',id)});
 window.addMat=run(async id=>{const qt=N(G('m_q'));if(!PK.sel||!qt)return alert('Escolha o produto e a quantidade.');await q(sb.from('precificacao_materiais').insert({precificacao_id:id,produto_id:PK.sel,quantidade_usada:qt}));PK.sel=null;PK.q='';go('edit',id)});
 window.delMat=run(async(m,id)=>{await q(sb.from('precificacao_materiais').delete().eq('id',m));go('edit',id)});
 window.delSes=run(async(s,id)=>{if(!confirm('Remover esta sessão?'))return;await q(sb.from('sessoes').delete().eq('id',s));go('edit',id)});
@@ -299,7 +450,7 @@ window.addSes=run(async id=>{
 window.fin=run(async id=>{if(!confirm('Concluir? A precificação fica bloqueada e entra no Início. Só reabre com motivo.'))return;await q(sb.rpc('concluir_precificacao',{p_id:id}));go('edit',id)});
 window.reab=run(async id=>{const m=prompt('Motivo da reabertura:');if(!m)return;await q(sb.rpc('reabrir_precificacao',{p_id:id,p_motivo:m}));go('edit',id)});
 
-/* ---------- Cadastros (por categoria), taxas, backup e conta ---------- */
+/* ---------- Cadastros (por categoria) e taxas ---------- */
 async function vCad(){
   const[pr,tx]=await Promise.all([loadProds(),q(sb.from('taxas_cartao').select('*').order('vigente_desde',{ascending:false}))]);
   CAD=pr;
@@ -308,8 +459,7 @@ async function vCad(){
   return`<div class="ph"><h2>Cadastros</h2></div><div class="card"><div class="sh"><h3>Produtos e materiais</h3><button class="b sm" onclick="go('prod','novo')">+ Novo</button></div>
   <input id="cad_q" placeholder="Buscar produto…" value="${esc(cadQ)}" oninput="cadQ=this.value;cadRender()" autocomplete="off"><div id="cadlist"></div></div>
   <div class="card"><h3>Taxas da maquininha</h3><div class="m">Alterar cria uma nova versão; precificações concluídas não mudam.</div>
-  ${T.map(t=>`<div class="row"><span>${t.forma==='debito'?'Débito':t.parcelas+'x crédito'}</span><span>${t.percentual}% <a class="l" onclick="novaTaxa('${t.forma}',${t.parcelas})">alterar</a></span></div>`).join('')}</div>
-  <div class="card"><h3>Conta</h3><button class="b g" onclick="backup()">Exportar backup (JSON)</button><button class="b g" onclick="sair()">Sair</button></div>`;
+  ${T.map(t=>`<div class="row"><span>${t.forma==='debito'?'Débito':t.parcelas+'x crédito'}</span><span>${t.percentual}% <a class="l" onclick="novaTaxa('${t.forma}',${t.parcelas})">alterar</a></span></div>`).join('')}</div>`;
 }
 function cadRender(){
   const el=document.getElementById('cadlist');if(!el)return;
@@ -318,23 +468,20 @@ function cadRender(){
   el.innerHTML=CATS.map(([k,n])=>{
     const all=CAD.filter(p=>p.cat===k),l=all.filter(p=>!t||norm(p.nome).includes(t));
     if(t&&!l.length)return'';
-    const body=k==='consumo'
-      ?SUBS.map(([sk,sn])=>{const a=l.filter(p=>p.sub===sk);return`<div class="subh"><span>${sn} <span class="m">(${a.length})</span></span><button class="x" onclick="go('prod','novo:consumo:${sk}')">+ novo</button></div>${a.map(row).join('')||'<div class="m e">Nenhum item.</div>'}`}).join('')
-      :(l.map(row).join('')||'<div class="m e">Nenhum produto.</div>');
+    const body=l.map(row).join('')||'<div class="m e">Nenhum produto.</div>';
     const open=t?true:!!cadOpen[k];
     return`<details class="cat" ${open?'open':''} ontoggle="if(!cadQ)cadOpen['${k}']=this.open"><summary><span>${n}</span><span class="m">${all.length} item(ns)</span></summary>${body}<button class="b g sm" onclick="go('prod','novo:${k}')">+ Novo em ${n}</button></details>`}).join('')||'<div class="m">Nenhum produto encontrado.</div>';
 }
 async function vProd(id){
   const isNew=String(id).startsWith('novo'),pt=String(id).split(':');
-  let p={nome:'',unidade:'',categoria:isNew?(pt[1]||''):'',subcategoria:isNew?(pt[2]||''):''},u={};
-  if(!isNew){p=await q(sb.from('produtos').select('id,nome,unidade,categoria,subcategoria,produto_precos(preco_embalagem,rendimento,vigente_desde)').eq('id',id).single());u=p.produto_precos.sort((a,b)=>b.vigente_desde.localeCompare(a.vigente_desde))[0]||{}}
+  let p={nome:'',unidade:'',categoria:isNew?(pt[1]||''):''},u={};
+  if(!isNew){p=await q(sb.from('produtos').select('id,nome,unidade,categoria,produto_precos(preco_embalagem,rendimento,vigente_desde)').eq('id',id).single());u=p.produto_precos.sort((a,b)=>b.vigente_desde.localeCompare(a.vigente_desde))[0]||{}}
   return`<a class="l" onclick="go('cad')">← Cadastros</a><div class="ph"><h2>${isNew?'Novo produto':'Editar produto'}</h2></div><div class="card">
   <label>Nome</label><input id="c_n" value="${esc(p.nome)}">
-  <label>Categoria</label><select id="c_c" onchange="document.getElementById('c_sw').style.display=this.value==='consumo'?'block':'none'"><option value="">— escolher —</option>${CATS.map(([k,n])=>`<option value="${k}" ${p.categoria===k?'selected':''}>${n}</option>`).join('')}</select>
-  <div id="c_sw" style="display:${p.categoria==='consumo'?'block':'none'}"><label>Subcategoria</label><select id="c_s"><option value="">— escolher —</option>${SUBS.map(([k,n])=>`<option value="${k}" ${p.subcategoria===k?'selected':''}>${n}</option>`).join('')}</select></div>
+  <label>Categoria</label><select id="c_c"><option value="">— escolher —</option>${CATS.map(([k,n])=>`<option value="${k}" ${p.categoria===k?'selected':''}>${n}</option>`).join('')}</select>
   <label>Unidade (opcional, ex.: UI, embalagem, ml)</label><input id="c_u" value="${esc(p.unidade||'')}">
-  <label>Preço total pago (R$)</label><input id="c_p" value="${esc(u.preco_embalagem??'')}" inputmode="decimal">
-  <label>Rendimento total (quanto rende tudo que você comprou)</label><input id="c_r" value="${esc(u.rendimento??'')}" inputmode="decimal">
+  <label>Preço total pago (R$)</label><input id="c_p" value="${esc(nv(u.preco_embalagem))}" placeholder="0,00" inputmode="decimal">
+  <label>Rendimento total (quanto rende tudo que você comprou)</label><input id="c_r" value="${esc(nv(u.rendimento))}" placeholder="0" inputmode="decimal">
   <label>Comprou mais de uma embalagem? (opcional) Uma por linha: preço / rendimento. O app soma tudo e usa no lugar dos dois campos acima.</label>
   <textarea id="c_e" rows="3" placeholder="700 / 200&#10;778 / 100"></textarea>
   <button class="b" onclick="salvaProd('${id}')">Salvar</button>${isNew?'':`<button class="b g" onclick="arqProd('${id}')">Arquivar</button><button class="x" onclick="excProd('${id}')">Excluir</button>`}
@@ -344,19 +491,19 @@ window.salvaProd=run(async id=>{
   const isNew=String(id).startsWith('novo');
   let pr=N(G('c_p')),rd=N(G('c_r'));const ln=G('c_e').split('\n').map(l=>l.split('/')).filter(a=>a.length===2&&N(a[1]));
   if(ln.length){pr=ln.reduce((s,a)=>s+N(a[0]),0);rd=ln.reduce((s,a)=>s+N(a[1]),0)}
-  const n=G('c_n').trim(),cat=G('c_c'),sub=cat==='consumo'?G('c_s'):null;
+  const n=G('c_n').trim(),cat=G('c_c');
   if(!n||!rd)return alert('Informe ao menos o nome e o rendimento.');
   if(!cat)return alert('Escolha a categoria.');
-  if(cat==='consumo'&&!sub)return alert('Escolha a subcategoria do item de consumo.');
-  const campos={nome:n,unidade:G('c_u').trim()||null,categoria:cat,subcategoria:sub};
+  const campos={nome:n,unidade:G('c_u').trim()||null,categoria:cat};
+  if(cat!=='consumo')campos.subcategoria=null;
   if(isNew)id=(await q(sb.from('produtos').insert(campos).select('id').single())).id;else await q(sb.from('produtos').update(campos).eq('id',id));
   const l=(await q(sb.from('produto_precos').select('preco_embalagem,rendimento').eq('produto_id',id).order('vigente_desde',{ascending:false}).limit(1)))[0];
   if(!l||Number(l.preco_embalagem)!==pr||Number(l.rendimento)!==rd)await q(sb.from('produto_precos').insert({produto_id:id,preco_embalagem:pr,rendimento:rd}));
-  go('cad')});
-window.arqProd=run(async id=>{if(!confirm('Arquivar? Ele some da lista, e as precificações antigas continuam intactas.'))return;await q(sb.from('produtos').update({ativo:false}).eq('id',id));go('cad')});
+  PC=null;go('cad')});
+window.arqProd=run(async id=>{if(!confirm('Arquivar? Ele some da lista, e as precificações antigas continuam intactas.'))return;await q(sb.from('produtos').update({ativo:false}).eq('id',id));PC=null;go('cad')});
 window.excProd=run(async id=>{
   if(!confirm('Excluir este produto? Se ele já foi usado em alguma precificação, será apenas arquivado para preservar o histórico.'))return;
-  const r=await q(sb.rpc('excluir_produto',{p_id:id}));
+  const r=await q(sb.rpc('excluir_produto',{p_id:id}));PC=null;
   alert(r==='arquivado'?'Este produto já foi usado em precificações, então foi arquivado (sai das listas e o histórico fica preservado).':'Produto excluído.');go('cad')});
 window.novaTaxa=run(async(f,pa)=>{const v=prompt('Nova taxa (%):');if(v===null||v==='')return;await q(sb.from('taxas_cartao').insert({forma:f,parcelas:pa||null,percentual:N(v)}));go('cad')});
 window.backup=run(async()=>{
@@ -365,8 +512,34 @@ window.backup=run(async()=>{
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(out,null,1)],{type:'application/json'}));a.download='backup-consultorio-'+hoje()+'.json';a.click();
 });
 
+/* ---------- Conta (menu principal) ---------- */
+async function vConta(){
+  const s=await ensure(),u=s?s.user:{};
+  return`<div class="ph"><h2>Conta</h2></div><div class="card"><h3>Informações da conta</h3>
+  <div class="row"><span>E-mail</span><span class="r">${esc(u.email||'')}</span></div>
+  <div class="row"><span>Conta criada em</span><span class="r">${u.created_at?dt(u.created_at):'—'}</span></div>
+  <div class="row"><span>Último acesso</span><span class="r">${u.last_sign_in_at?dt(u.last_sign_in_at):'—'}</span></div></div>
+  <div class="card"><h3>Alterar senha</h3><label>Nova senha (mínimo 8 caracteres)</label><input id="cp_n" type="password" autocomplete="new-password"><label>Confirmar nova senha</label><input id="cp_c" type="password" autocomplete="new-password"><button class="b" onclick="trocaSenha()">Alterar senha</button></div>
+  <div class="card"><h3>Dados e sessão</h3><button class="b g" onclick="backup()">Exportar backup (JSON)</button><button class="b g" onclick="sair()">Sair da conta</button></div>`;
+}
+
+/* ---------- Enter: mesma ação do botão principal do formulário (sem enviar duas vezes) ---------- */
+const ENT={em:()=>login(),pw:()=>login(),fg_em:()=>esqueci(),n_p:()=>criar(),n_n:()=>criar(),n_pr:()=>criar(),p_n:()=>addPac(),p_t:()=>addPac(),
+  m_q:()=>addMat(PK.pid),s_data:()=>addSes(arg),cp_n:()=>trocaSenha(),cp_c:()=>trocaSenha(),rec_n:()=>novaSenhaRec(),rec_c:()=>novaSenhaRec(),
+  c_n:()=>salvaProd(arg),c_u:()=>salvaProd(arg),c_p:()=>salvaProd(arg),c_r:()=>salvaProd(arg)};
+document.addEventListener('keydown',e=>{
+  if(e.key!=='Enter'||e.isComposing||e.repeat)return;
+  const t=e.target;if(!t||t.tagName!=='INPUT'||['checkbox','button','radio'].includes(t.type))return;
+  const id=t.id||'';
+  if(id==='pk_q'||id==='cad_q'){e.preventDefault();return}
+  let fn=ENT[id];
+  if(!fn&&nav==='edit'&&/^f_(mg|im|ou|tt|dv|dp|dj|ca|px|pa|cb)$/.test(id)&&!t.disabled)fn=()=>salvar(arg);
+  if(!fn)return;
+  e.preventDefault();fn();
+});
+
 /* ---------- Gestos: arrastar para o lado volta ou troca de aba ---------- */
-const TABS=['home','nova','pac','hist','cad'];
+const TABS=['home','nova','pac','hist','cad','conta'];
 function swipe(dir){
   let alvo=null;
   const pai=nav==='edit'?'hist':nav==='prod'?'cad':(nav==='pac'&&arg)?'pac':null;
@@ -374,14 +547,17 @@ function swipe(dir){
   else{const i=TABS.indexOf(nav),j=dir==='r'?i-1:i+1;if(i>=0&&j>=0&&j<TABS.length)alvo=TABS[j]}
   if(!alvo)return;
   if(DIRTY&&!confirm('Há alterações não salvas. Sair mesmo assim?'))return;
-  ANIM=dir;go(alvo);
+  ANIM=dir;if(pai)go(alvo);else tab(alvo);
 }
 document.addEventListener('touchstart',e=>{const t=e.touches[0];SW=(e.touches.length===1&&t.clientX>16)?{x:t.clientX,y:t.clientY,el:e.target}:null},{passive:true});
 document.addEventListener('touchend',e=>{
   if(!SW)return;const t=e.changedTouches[0],dx=t.clientX-SW.x,dy=t.clientY-SW.y,el=SW.el;SW=null;
   if(Math.abs(dx)<80||Math.abs(dy)>Math.abs(dx)*.5)return;
-  if(el&&el.closest&&el.closest('input,textarea,select,.plist'))return;
+  if(el&&el.closest&&el.closest('input,textarea,select,.plist,.ov'))return;
   swipe(dx>0?'r':'l')},{passive:true});
-document.addEventListener('input',e=>{if(!['pk_q','cad_q'].includes(e.target.id))DIRTY=true});
-sb.auth.onAuthStateChange(()=>{});draw();
+const liveIds=/^f_(mg|im|ou|tt|dv|dp|ca|px|pa|cb|fm)$/;
+document.addEventListener('input',e=>{const id=e.target.id||'';if(!['pk_q','cad_q'].includes(id)&&!id.startsWith('cx_'))DIRTY=true;if(nav==='edit'&&liveIds.test(id))liveSched()});
+document.addEventListener('change',e=>{const id=e.target.id||'';if(nav==='edit'&&liveIds.test(id))liveSched()});
+sb.auth.onAuthStateChange((ev,s)=>{SESS=s;if(ev==='PASSWORD_RECOVERY'){RECOV=true;setTimeout(draw,0)}else if(ev==='SIGNED_OUT'){VC={};setTimeout(draw,0)}});
+draw();
 </script></body></html>
