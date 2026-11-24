@@ -15,7 +15,6 @@ body{background-image:linear-gradient(180deg,rgba(201,162,77,.10),transparent 32
 ::selection{background:var(--a2)}
 input[type=checkbox]{accent-color:var(--a)}
 .logo,.side .logo{background:linear-gradient(135deg,#e3c27a,#b98f3e);color:#2a1c0c;box-shadow:0 4px 12px -4px rgba(134,97,26,.5)}
-h2{font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;font-weight:700;letter-spacing:-.2px}
 .card{border-radius:20px;transition:box-shadow .2s ease,border-color .2s ease}
 .ki{border-radius:50%}
 .k{font-variant-numeric:tabular-nums}
