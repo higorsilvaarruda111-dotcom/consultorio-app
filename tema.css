@@ -1,0 +1,43 @@
+/* Tema "Âmbar": paleta quente (creme, marrom-café e dourado). Só aparência: nenhum comportamento muda. */
+:root{
+ --bg:#f6f1ea;--c:#fffdf9;--t:#2a211b;--m:#7d6e5f;
+ --a:#86611a;--a2:#f3e9d6;--a3:#c9a24d;--bt:#fff;--b:#e8dfd2;
+ --bad:#b3382c;--ok:#2f6a3b;--okb:#e6f0e2;--wn:#a8482a;--wnb:#f9e6dc;
+ --sh:0 1px 2px rgba(60,40,20,.05),0 10px 28px rgba(60,40,20,.07);--side:#211a15;--gold:#d9b062
+}
+@media(prefers-color-scheme:dark){:root{
+ --bg:#16120f;--c:#201b17;--t:#f1e9dd;--m:#b3a594;
+ --a:#d9b062;--a2:#33291b;--a3:#a67c2e;--bt:#1a140d;--b:#332b24;
+ --bad:#ef7a6b;--ok:#8fcf8a;--okb:#1d2b1c;--wn:#e59a74;--wnb:#3a2417;--sh:none;--side:#100d0b
+}}
+body{background-image:linear-gradient(180deg,rgba(201,162,77,.10),transparent 320px);background-repeat:no-repeat}
+@media(prefers-color-scheme:dark){body{background-image:linear-gradient(180deg,rgba(217,176,98,.07),transparent 320px)}}
+::selection{background:var(--a2)}
+input[type=checkbox]{accent-color:var(--a)}
+.logo,.side .logo{background:linear-gradient(135deg,#e3c27a,#b98f3e);color:#2a1c0c;box-shadow:0 4px 12px -4px rgba(134,97,26,.5)}
+.card{border-radius:20px;transition:box-shadow .2s ease,border-color .2s ease}
+.ki{border-radius:50%}
+.k{font-variant-numeric:tabular-nums}
+button.b{border-radius:14px;box-shadow:0 6px 14px -8px rgba(134,97,26,.6)}
+button.g,button.bd{box-shadow:none}
+.seg{border-radius:16px}.seg button{border-radius:12px}
+.ov{background:rgba(24,16,8,.55)}.md{border-radius:22px}
+.login .card{border-radius:24px;box-shadow:0 24px 60px -24px rgba(60,40,20,.35)}
+@media(max-width:899px){
+ nav{border-radius:24px;box-shadow:0 10px 30px -10px rgba(60,40,20,.35)}
+ nav button{border-radius:16px}
+}
+@media(min-width:900px){
+ .side{background:linear-gradient(180deg,var(--side),#17120e);box-shadow:inset -1px 0 0 rgba(255,255,255,.04)}
+ .side .bn{color:#f6eddc}.side .bs{color:rgba(246,237,222,.62)}
+ nav button{color:rgba(246,237,222,.72);border-radius:12px}
+ nav button:hover{background:rgba(217,176,98,.10);color:#f6eddc}
+ nav .on{background:rgba(217,176,98,.16);color:#f1d9a3;box-shadow:inset 3px 0 0 var(--gold)}
+}
+@media(hover:hover){.kg>.card:not(.open):hover{box-shadow:0 14px 34px -14px rgba(60,40,20,.28);border-color:var(--a3)}}
+@media(prefers-reduced-motion:no-preference){
+ .kg>.card{animation:up .26s ease both}
+ .kg>.card:nth-child(2){animation-delay:.03s}
+ .kg>.card:nth-child(3){animation-delay:.06s}
+ .kg>.card:nth-child(n+4){animation-delay:.09s}
+}
