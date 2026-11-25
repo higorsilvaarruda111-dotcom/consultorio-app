@@ -111,9 +111,10 @@ details.cat>button{margin:10px 0 12px}
 @keyframes up{from{opacity:0;transform:translateY(6px)}}
 @keyframes swr{from{opacity:0;transform:translateX(-28px)}}@keyframes swl{from{opacity:0;transform:translateX(28px)}}
 @media(prefers-reduced-motion:no-preference){main.swr>*{animation:swr .26s ease both}main.swl>*{animation:swl .26s ease both}}
-</style><link rel="stylesheet" href="tema.css"></head><body><div id="app"></div>
+</style><link rel="stylesheet" href="tema.css"><link rel="stylesheet" href="extras.css"></head><body><div id="app"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script src="config.js"></script>
+<script src="extras.js"></script>
 <script>
 const sb=supabase.createClient('https://lriuxkkcpeavmtzgwlno.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxyaXV4a2tjcGVhdm10emd3bG5vIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTUyMjg3MTUsImV4cCI6MjExMDgwNDcxNX0.1IUTkB4oVzqRddfcGmLD09NA9rCpBmgrCbZ9u9wlHUY');
 const $=document.getElementById('app'),G=i=>document.getElementById(i)?.value??'';
@@ -233,12 +234,13 @@ const MES=['janeiro','fevereiro','março','abril','maio','junho','julho','agosto
 let py=null,pm=null;
 async function vHome(){
   const an=arg==='a',k=an?'ano':'mes';
-  const[rows,abl]=await Promise.all([q(sb.from(an?'vw_dashboard_anual':'vw_dashboard_mensal').select('*').order(k,{ascending:false})),q(sb.from('vw_pipeline').select('*'))]);
+  const[rows,abl,gfd]=await Promise.all([q(sb.from(an?'vw_dashboard_anual':'vw_dashboard_mensal').select('*').order(k,{ascending:false})),q(sb.from('vw_pipeline').select('*')),gfLoad()]);
   const hd=`<div class="ph"><h2>Visão geral</h2><div class="m">Indicadores apenas de precificações concluídas</div></div>`;
   const tog=`<div class="seg"><button class="${an?'':'on'}" onclick="go('home','m')">Mensal</button><button class="${an?'on':''}" onclick="go('home','a')">Anual</button></div>`;
   const pl=abl[0]||{},blk=(cl,i_,t,n,l2,v,sem)=>`<div class="card open ${cl}"><div class="oh"><div class="ki">${ic(i_)}</div><span class="tag ${cl==='and'?'ok':'warn'}">${t}</span></div><div class="grid2"><div><div class="m">Abertos</div><div class="k">${Number(n||0)}</div></div><div><div class="m">${l2}</div><div class="k">${R(v)}</div></div></div>${Number(sem)>0?`<div class="m" style="margin-top:8px">${Number(sem)} sem valor definido</div>`:''}</div>`;
   const aberto=`<div class="kg pipe">${blk('orc','hourglass','Orçamentos',pl.orcamentos_qtd,'Valor proposto',pl.orcamentos_valor,pl.orcamentos_sem_valor)}${blk('and','clock','Em andamento',pl.andamento_qtd,'Receita prevista',pl.andamento_valor,pl.andamento_sem_valor)}</div>`;
-  if(!rows.length)return`${hd}${tog}<div class="card m">Nenhuma precificação concluída ainda. Os números aparecem aqui quando você concluir a primeira.</div>${aberto}`;
+  const graf=gfSection(gfd);
+  if(!rows.length)return`${hd}${tog}<div class="card m">Nenhuma precificação concluída ainda. Os números aparecem aqui quando você concluir a primeira.</div>${aberto}${graf}`;
   let r,sel;
   if(an){r=rows.find(x=>x[k]===per)||rows[0];sel=`<select onchange="per=this.value;draw()">${rows.map(x=>`<option value="${x[k]}" ${x[k]===r[k]?'selected':''}>${x[k].slice(0,4)}</option>`).join('')}</select>`}
   else{
@@ -250,24 +252,26 @@ async function vHome(){
   const c=(i,t,v,s='')=>`<div class="card"><div class="ki">${ic(i)}</div><div class="kt">${t}</div><div class="k">${v}</div>${s}</div>`;
   const body=r?`<div class="kg">${c('dollar','Faturamento',R(r.faturamento))}${c('trend','Lucro real',R(r.lucro_real),`<details class="m"><summary>detalhes</summary>Inclui ${R(r.cashback_no_lucro)} de cashback<br>Sem cashback: ${R(r.lucro_sem_cashback)}</details>`)}
   ${c('receipt','Custos totais',R(r.custos_totais))}${c('check','Concluídos',r.tratamentos_concluidos)}${c('ticket','Ticket médio',R(r.ticket_medio))}${c('pct','Margem real',Number(r.margem_real_pct||0).toFixed(1).replace('.',',')+'%')}</div>`:'<div class="card m">Nenhuma precificação concluída neste período.</div>';
-  return`${hd}${tog}${sel}${body}${aberto}`;
+  return`${hd}${tog}${sel}${body}${aberto}${graf}`;
 }
 
-/* ---------- Nova precificação ---------- */
-async function vNova(){
-  const ps=await q(sb.from('pacientes').select('id,nome').eq('arquivado',false).order('nome'));
+/* ---------- Nova precificação (o procedimento vem da lista gerenciada em Cadastros) ---------- */
+async function vNova(pre){
+  const[ps,prs]=await Promise.all([q(sb.from('pacientes').select('id,nome').eq('arquivado',false).order('nome')),q(sb.from('procedimentos').select('id,nome').eq('ativo',true).order('ordem').order('nome'))]);
   return`<div class="ph"><h2>Nova precificação</h2></div><div class="card"><label>Paciente já cadastrado</label>
-  <select id="n_p"><option value="">— escolher —</option>${ps.map(p=>`<option value="${p.id}">${esc(p.nome)}</option>`).join('')}</select>
+  <select id="n_p"><option value="">— escolher —</option>${ps.map(p=>`<option value="${p.id}" ${p.id===pre?'selected':''}>${esc(p.nome)}</option>`).join('')}</select>
   <label>ou novo paciente</label><input id="n_n" placeholder="Nome do paciente">
-  <label>Procedimento</label><input id="n_pr" placeholder="Ex.: Botox"><button class="b" onclick="criar()">Criar e continuar</button></div>`;
+  <label>Procedimento</label>${prs.length?`<select id="n_pr"><option value="">— escolher —</option>${prs.map(p=>`<option value="${p.id}">${esc(p.nome)}</option>`).join('')}</select>`:`<div class="info">Nenhum procedimento cadastrado. <a class="l" onclick="tab('cad')">Cadastre em Cadastros</a>.</div>`}
+  <div class="m" style="margin:-4px 0 10px">A lista de procedimentos é gerenciada em <a class="l" onclick="tab('cad')">Cadastros</a>.</div><button class="b" onclick="criar()">Criar e continuar</button></div>`;
 }
 window.criar=run(async()=>{
-  let pid=G('n_p');const nome=G('n_n').trim(),pr=G('n_pr').trim();
-  if((!pid&&!nome)||!pr)return alert('Escolha ou digite o paciente e o procedimento.');
+  let pid=G('n_p');const nome=G('n_n').trim(),pr=G('n_pr'),sl=document.getElementById('n_pr');
+  if((!pid&&!nome)||!pr)return alert('Escolha ou digite o paciente e escolha o procedimento.');
+  const prn=sl&&sl.selectedOptions[0]?sl.selectedOptions[0].text:'';
   if(!pid)pid=(await q(sb.from('pacientes').insert({nome}).select('id').single())).id;
-  go('edit',(await q(sb.from('precificacoes').insert({paciente_id:pid,procedimento:pr,status:'em_andamento'}).select('id').single())).id);
+  go('edit',(await q(sb.from('precificacoes').insert({paciente_id:pid,procedimento_id:pr,procedimento:prn,status:'em_andamento'}).select('id').single())).id);
 });
-window.novaPara=run(async pid=>{const pr=prompt('Nome do procedimento');if(!pr)return;go('edit',(await q(sb.from('precificacoes').insert({paciente_id:pid,procedimento:pr,status:'em_andamento'}).select('id').single())).id)});
+window.novaPara=pid=>go('nova',pid);
 
 /* ---------- Seleção e exclusão (individual e em lote) ---------- */
 window.selTog=(k,id,on)=>{on?SEL[k].add(id):SEL[k].delete(id);selUI(k)};
@@ -494,11 +498,11 @@ window.reab=run(async id=>{const m=prompt('Motivo da reabertura:');if(!m)return;
 
 /* ---------- Cadastros (por categoria) e taxas ---------- */
 async function vCad(){
-  const[pr,tx]=await Promise.all([loadProds(),q(sb.from('taxas_cartao').select('*').order('vigente_desde',{ascending:false}))]);
+  const[pr,tx]=await Promise.all([loadProds(),q(sb.from('taxas_cartao').select('*').order('vigente_desde',{ascending:false})),procLoad()]);
   CAD=pr;
   const lt={};tx.forEach(t=>{const k=t.forma+(t.parcelas||'');if(!lt[k])lt[k]=t});
   const T=Object.values(lt).sort((a,b)=>a.forma<b.forma?1:a.forma>b.forma?-1:a.parcelas-b.parcelas);
-  return`<div class="ph"><h2>Cadastros</h2></div><div class="card"><div class="sh"><h3>Produtos e materiais</h3><button class="b sm" onclick="go('prod','novo')">+ Novo</button></div>
+  return`<div class="ph"><h2>Cadastros</h2></div>${procCard()}<div class="card"><div class="sh"><h3>Produtos e materiais</h3><button class="b sm" onclick="go('prod','novo')">+ Novo</button></div>
   <input id="cad_q" placeholder="Buscar produto…" value="${esc(cadQ)}" oninput="cadQ=this.value;cadRender()" autocomplete="off"><div id="cadlist"></div></div>
   <div class="card"><h3>Taxas da maquininha</h3><div class="m">Alterar cria uma nova versão; precificações concluídas não mudam.</div>
   ${T.map(t=>`<div class="row"><span>${t.forma==='debito'?'Débito':t.parcelas+'x crédito'}</span><span>${t.percentual}% <a class="l" onclick="novaTaxa('${t.forma}',${t.parcelas})">alterar</a></span></div>`).join('')}</div>`;
@@ -550,7 +554,7 @@ window.excProd=run(async id=>{
 window.novaTaxa=run(async(f,pa)=>{const v=prompt('Nova taxa (%):');if(v===null||v==='')return;await q(sb.from('taxas_cartao').insert({forma:f,parcelas:pa||null,percentual:N(v)}));go('cad')});
 window.backup=run(async()=>{
   const out={gerado_em:new Date().toISOString()};
-  for(const t of['pacientes','dias_atendimento','dia_custos','itens_custo_nomes','produtos','produto_precos','taxas_cartao','precificacoes','precificacao_materiais','sessoes','snapshots','historico_alteracoes'])out[t]=await q(sb.from(t).select('*'));
+  for(const t of['pacientes','dias_atendimento','dia_custos','itens_custo_nomes','produtos','produto_precos','procedimentos','taxas_cartao','precificacoes','precificacao_materiais','sessoes','snapshots','historico_alteracoes'])out[t]=await q(sb.from(t).select('*'));
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(out,null,1)],{type:'application/json'}));a.download='backup-consultorio-'+hoje()+'.json';a.click();
 });
 
@@ -596,10 +600,10 @@ document.addEventListener('touchstart',e=>{const t=e.touches[0];SW=(e.touches.le
 document.addEventListener('touchend',e=>{
   if(!SW)return;const t=e.changedTouches[0],dx=t.clientX-SW.x,dy=t.clientY-SW.y,el=SW.el;SW=null;
   if(Math.abs(dx)<80||Math.abs(dy)>Math.abs(dx)*.5)return;
-  if(el&&el.closest&&el.closest('input,textarea,select,.plist,.ov'))return;
+  if(el&&el.closest&&el.closest('input,textarea,select,.plist,.ov,.gfseg,.gf-svg'))return;
   swipe(dx>0?'r':'l')},{passive:true});
 const liveIds=/^f_(mg|im|ou|tt|dv|dp|ca|px|pa|cb|fm)$/;
-document.addEventListener('input',e=>{const id=e.target.id||'';if(!['pk_q','cad_q'].includes(id)&&!id.startsWith('cx_'))DIRTY=true;if(nav==='edit'&&liveIds.test(id))liveSched()});
+document.addEventListener('input',e=>{const id=e.target.id||'';if(!['pk_q','cad_q'].includes(id)&&!id.startsWith('cx_')&&!id.startsWith('pr_'))DIRTY=true;if(nav==='edit'&&liveIds.test(id))liveSched()});
 document.addEventListener('change',e=>{const id=e.target.id||'';if(nav==='edit'&&liveIds.test(id))liveSched()});
 sb.auth.onAuthStateChange((ev,s)=>{SESS=s;if(ev==='PASSWORD_RECOVERY'){RECOV=true;setTimeout(draw,0)}else if(ev==='SIGNED_OUT'){VC={};setTimeout(draw,0)}});
 
