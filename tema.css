@@ -1,21 +1,27 @@
-/* Tema "Âmbar": paleta quente (creme, marrom-café e dourado). Só aparência: nenhum comportamento muda. */
+/* Tema "Âmbar": paleta quente (creme, marrom-café e dourado) com textura de ondas ao fundo.
+   Só aparência: nenhum comportamento muda. Carregado depois do CSS do index.html. */
 :root{
  --bg:#f6f1ea;--c:#fffdf9;--t:#2a211b;--m:#7d6e5f;
  --a:#86611a;--a2:#f3e9d6;--a3:#c9a24d;--bt:#fff;--b:#e8dfd2;
  --bad:#b3382c;--ok:#2f6a3b;--okb:#e6f0e2;--wn:#a8482a;--wnb:#f9e6dc;
- --sh:0 1px 2px rgba(60,40,20,.05),0 10px 28px rgba(60,40,20,.07);--side:#211a15;--gold:#d9b062
+ --sh:0 1px 2px rgba(60,40,20,.05),0 10px 28px rgba(60,40,20,.07);--side:#211a15;--gold:#d9b062;
+ --tex:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1600 1000' preserveAspectRatio='xMidYMid slice'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23b98f3e' stop-opacity='.16'/%3E%3Cstop offset='1' stop-color='%23b98f3e' stop-opacity='0'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M0 760C240 700 420 840 700 780S1180 560 1600 640V1000H0Z' fill='url(%23g)'/%3E%3Cpath d='M0 820C260 760 460 900 740 840S1200 640 1600 720' fill='none' stroke='%23b98f3e' stroke-opacity='.16' stroke-width='1.5'/%3E%3Cpath d='M0 880C280 820 500 950 780 900S1220 720 1600 800' fill='none' stroke='%23b98f3e' stroke-opacity='.10' stroke-width='1.5'/%3E%3Cpath d='M900 0C1000 160 1240 200 1600 120V0Z' fill='url(%23g)'/%3E%3Cpath d='M860 0C980 190 1260 240 1600 170' fill='none' stroke='%23b98f3e' stroke-opacity='.14' stroke-width='1.5'/%3E%3C/svg%3E")
 }
 /* Escuro: segue o sistema, a menos que o interruptor da aba Conta tenha escolhido (data-theme) */
 @media(prefers-color-scheme:dark){:root:not([data-theme="light"]){
  --bg:#16120f;--c:#201b17;--t:#f1e9dd;--m:#b3a594;
  --a:#d9b062;--a2:#33291b;--a3:#a67c2e;--bt:#1a140d;--b:#332b24;
- --bad:#ef7a6b;--ok:#8fcf8a;--okb:#1d2b1c;--wn:#e59a74;--wnb:#3a2417;--sh:none;--side:#100d0b
+ --bad:#ef7a6b;--ok:#8fcf8a;--okb:#1d2b1c;--wn:#e59a74;--wnb:#3a2417;--sh:none;--side:#100d0b;
+ --tex:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1600 1000' preserveAspectRatio='xMidYMid slice'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23d9b062' stop-opacity='.14'/%3E%3Cstop offset='1' stop-color='%23d9b062' stop-opacity='0'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M0 760C240 700 420 840 700 780S1180 560 1600 640V1000H0Z' fill='url(%23g)'/%3E%3Cpath d='M0 820C260 760 460 900 740 840S1200 640 1600 720' fill='none' stroke='%23d9b062' stroke-opacity='.12' stroke-width='1.5'/%3E%3Cpath d='M0 880C280 820 500 950 780 900S1220 720 1600 800' fill='none' stroke='%23d9b062' stroke-opacity='.08' stroke-width='1.5'/%3E%3Cpath d='M900 0C1000 160 1240 200 1600 120V0Z' fill='url(%23g)'/%3E%3Cpath d='M860 0C980 190 1260 240 1600 170' fill='none' stroke='%23d9b062' stroke-opacity='.12' stroke-width='1.5'/%3E%3C/svg%3E")
 }}
 :root[data-theme="dark"]{
  --bg:#16120f;--c:#201b17;--t:#f1e9dd;--m:#b3a594;
  --a:#d9b062;--a2:#33291b;--a3:#a67c2e;--bt:#1a140d;--b:#332b24;
- --bad:#ef7a6b;--ok:#8fcf8a;--okb:#1d2b1c;--wn:#e59a74;--wnb:#3a2417;--sh:none;--side:#100d0b
+ --bad:#ef7a6b;--ok:#8fcf8a;--okb:#1d2b1c;--wn:#e59a74;--wnb:#3a2417;--sh:none;--side:#100d0b;
+ --tex:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1600 1000' preserveAspectRatio='xMidYMid slice'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23d9b062' stop-opacity='.14'/%3E%3Cstop offset='1' stop-color='%23d9b062' stop-opacity='0'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M0 760C240 700 420 840 700 780S1180 560 1600 640V1000H0Z' fill='url(%23g)'/%3E%3Cpath d='M0 820C260 760 460 900 740 840S1200 640 1600 720' fill='none' stroke='%23d9b062' stroke-opacity='.12' stroke-width='1.5'/%3E%3Cpath d='M0 880C280 820 500 950 780 900S1220 720 1600 800' fill='none' stroke='%23d9b062' stroke-opacity='.08' stroke-width='1.5'/%3E%3Cpath d='M900 0C1000 160 1240 200 1600 120V0Z' fill='url(%23g)'/%3E%3Cpath d='M860 0C980 190 1260 240 1600 170' fill='none' stroke='%23d9b062' stroke-opacity='.12' stroke-width='1.5'/%3E%3C/svg%3E")
 }
+/* Textura de fundo: ondas douradas sutis, fixas atrás de todo o conteúdo */
+body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background:var(--tex) center/cover no-repeat}
 body{background-image:linear-gradient(180deg,rgba(201,162,77,.10),transparent 320px);background-repeat:no-repeat}
 @media(prefers-color-scheme:dark){:root:not([data-theme="light"]) body{background-image:linear-gradient(180deg,rgba(217,176,98,.07),transparent 320px)}}
 :root[data-theme="dark"] body{background-image:linear-gradient(180deg,rgba(217,176,98,.07),transparent 320px)}
@@ -28,18 +34,23 @@ input[type=checkbox]{accent-color:var(--a)}
 button.b{border-radius:14px;box-shadow:0 6px 14px -8px rgba(134,97,26,.6)}
 button.g,button.bd{box-shadow:none}
 .seg{border-radius:16px}.seg button{border-radius:12px}
+.seg .on{color:var(--a);box-shadow:inset 0 0 0 1.5px var(--a)}
 .ov{background:rgba(24,16,8,.55)}.md{border-radius:22px}
 .login .card{border-radius:24px;box-shadow:0 24px 60px -24px rgba(60,40,20,.35)}
 @media(max-width:899px){
+ /* Celular: ícone dourado acima do título (como na referência); a navegação continua embaixo */
+ .mtop{margin:8px 0 14px}
+ .mtop .brand{flex-direction:column;align-items:flex-start;gap:12px}
  nav{border-radius:24px;box-shadow:0 10px 30px -10px rgba(60,40,20,.35)}
  nav button{border-radius:16px}
+ nav .on{box-shadow:inset 0 0 0 1px var(--a3)}
 }
 @media(min-width:900px){
- .side{background:linear-gradient(180deg,var(--side),#17120e);box-shadow:inset -1px 0 0 rgba(255,255,255,.04)}
+ .side{background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 248 320'%3E%3Cpath d='M0 320V240C50 215 100 270 160 250S230 210 248 215V320Z' fill='%23d9b062' fill-opacity='.07'/%3E%3Cpath d='M0 262C50 240 100 292 160 272S230 238 248 242' fill='none' stroke='%23d9b062' stroke-opacity='.18' stroke-width='1.2'/%3E%3C/svg%3E") no-repeat left bottom/100% auto,linear-gradient(180deg,var(--side),#17120e);box-shadow:inset -1px 0 0 rgba(255,255,255,.04)}
  .side .ht{color:#f6eddc}
- nav button{color:rgba(246,237,222,.72);border-radius:12px}
+ nav button{color:rgba(246,237,222,.72);border-radius:14px}
  nav button:hover{background:rgba(217,176,98,.10);color:#f6eddc}
- nav .on{background:rgba(217,176,98,.16);color:#f1d9a3;box-shadow:inset 3px 0 0 var(--gold)}
+ nav .on{background:rgba(217,176,98,.10);color:#f1d9a3;box-shadow:inset 0 0 0 1.5px var(--gold)}
 }
 @media(hover:hover){.kg>.card:not(.open):hover{box-shadow:0 14px 34px -14px rgba(60,40,20,.28);border-color:var(--a3)}}
 @media(prefers-reduced-motion:no-preference){

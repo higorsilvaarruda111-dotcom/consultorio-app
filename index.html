@@ -3,9 +3,9 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <title>Gestão do Consultório · Dr. Higor Arruda</title>
 <link rel="preconnect" href="https://lriuxkkcpeavmtzgwlno.supabase.co" crossorigin><link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-<link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#4f5bff">
+<link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#f6f1ea">
 <meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Consultório">
-<script>(function(){try{var t=localStorage.getItem('consultorio_tema'),d=document.documentElement;if(t==='dark'||t==='light')d.setAttribute('data-theme',t);var dk=t?t==='dark':matchMedia('(prefers-color-scheme:dark)').matches,m=document.querySelector('meta[name=theme-color]');if(m)m.content=dk?'#0e1020':'#4f5bff'}catch(e){}})()</script>
+<script>(function(){try{var t=localStorage.getItem('consultorio_tema'),d=document.documentElement;if(t==='dark'||t==='light')d.setAttribute('data-theme',t);var dk=t?t==='dark':matchMedia('(prefers-color-scheme:dark)').matches,m=document.querySelector('meta[name=theme-color]');if(m)m.content=dk?'#16120f':'#f6f1ea'}catch(e){}})()</script>
 <style>
 :root{--bg:#f3f4fb;--c:#fff;--t:#1b1f3b;--m:#6a7092;--a:#4f5bff;--a2:#eceeff;--bt:#fff;--b:#e4e6f2;--bad:#d92d20;--ok:#16794c;--okb:#e6f6ee;--wn:#a15c07;--wnb:#fff3de;--sh:0 1px 2px rgba(27,31,59,.05),0 8px 24px rgba(27,31,59,.06);--side:#4f5bff;color-scheme:light}
 @media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1020;--c:#171a30;--t:#e9ebff;--m:#9aa0c7;--a:#7b86ff;--a2:#232850;--bt:#0e1020;--b:#2a2f52;--bad:#f97066;--ok:#4ade80;--okb:#12301f;--wn:#fbbf24;--wnb:#33260a;--sh:none;--side:#1b1f45;color-scheme:dark}}
@@ -111,7 +111,7 @@ details.cat>button{margin:10px 0 12px}
 @keyframes up{from{opacity:0;transform:translateY(6px)}}
 @keyframes swr{from{opacity:0;transform:translateX(-28px)}}@keyframes swl{from{opacity:0;transform:translateX(28px)}}
 @media(prefers-reduced-motion:no-preference){main.swr>*{animation:swr .26s ease both}main.swl>*{animation:swl .26s ease both}}
-</style></head><body><div id="app"></div>
+</style><link rel="stylesheet" href="tema.css"></head><body><div id="app"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script src="config.js"></script>
 <script>
@@ -154,7 +154,7 @@ const run=f=>{let busy=false;return async(...a)=>{if(busy)return;busy=true;try{a
 
 /* ---------- Tema claro/escuro (escolha salva neste aparelho; sem escolha, segue o sistema) ---------- */
 const isDark=()=>{const t=document.documentElement.getAttribute('data-theme');return t?t==='dark':matchMedia('(prefers-color-scheme:dark)').matches};
-const metaTema=()=>{const m=document.querySelector('meta[name=theme-color]');if(m)m.content=isDark()?'#0e1020':'#4f5bff'};
+const metaTema=()=>{const m=document.querySelector('meta[name=theme-color]');if(m)m.content=isDark()?'#16120f':'#f6f1ea'};
 window.toggleTema=b=>{const on=b.getAttribute('aria-checked')!=='true',t=on?'dark':'light';document.documentElement.setAttribute('data-theme',t);try{localStorage.setItem('consultorio_tema',t)}catch(e){}b.setAttribute('aria-checked',String(on));metaTema()};
 try{matchMedia('(prefers-color-scheme:dark)').addEventListener('change',metaTema)}catch(e){}
 
