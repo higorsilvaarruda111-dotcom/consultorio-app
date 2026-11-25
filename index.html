@@ -5,9 +5,11 @@
 <link rel="preconnect" href="https://lriuxkkcpeavmtzgwlno.supabase.co" crossorigin><link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#4f5bff">
 <meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Consultório">
+<script>(function(){try{var t=localStorage.getItem('consultorio_tema'),d=document.documentElement;if(t==='dark'||t==='light')d.setAttribute('data-theme',t);var dk=t?t==='dark':matchMedia('(prefers-color-scheme:dark)').matches,m=document.querySelector('meta[name=theme-color]');if(m)m.content=dk?'#0e1020':'#4f5bff'}catch(e){}})()</script>
 <style>
-:root{--bg:#f3f4fb;--c:#fff;--t:#1b1f3b;--m:#6a7092;--a:#4f5bff;--a2:#eceeff;--bt:#fff;--b:#e4e6f2;--bad:#d92d20;--ok:#16794c;--okb:#e6f6ee;--wn:#a15c07;--wnb:#fff3de;--sh:0 1px 2px rgba(27,31,59,.05),0 8px 24px rgba(27,31,59,.06);--side:#4f5bff}
-@media(prefers-color-scheme:dark){:root{--bg:#0e1020;--c:#171a30;--t:#e9ebff;--m:#9aa0c7;--a:#7b86ff;--a2:#232850;--bt:#0e1020;--b:#2a2f52;--bad:#f97066;--ok:#4ade80;--okb:#12301f;--wn:#fbbf24;--wnb:#33260a;--sh:none;--side:#1b1f45}}
+:root{--bg:#f3f4fb;--c:#fff;--t:#1b1f3b;--m:#6a7092;--a:#4f5bff;--a2:#eceeff;--bt:#fff;--b:#e4e6f2;--bad:#d92d20;--ok:#16794c;--okb:#e6f6ee;--wn:#a15c07;--wnb:#fff3de;--sh:0 1px 2px rgba(27,31,59,.05),0 8px 24px rgba(27,31,59,.06);--side:#4f5bff;color-scheme:light}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1020;--c:#171a30;--t:#e9ebff;--m:#9aa0c7;--a:#7b86ff;--a2:#232850;--bt:#0e1020;--b:#2a2f52;--bad:#f97066;--ok:#4ade80;--okb:#12301f;--wn:#fbbf24;--wnb:#33260a;--sh:none;--side:#1b1f45;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0e1020;--c:#171a30;--t:#e9ebff;--m:#9aa0c7;--a:#7b86ff;--a2:#232850;--bt:#0e1020;--b:#2a2f52;--bad:#f97066;--ok:#4ade80;--okb:#12301f;--wn:#fbbf24;--wnb:#33260a;--sh:none;--side:#1b1f45;color-scheme:dark}
 *{box-sizing:border-box}[hidden]{display:none!important}
 html{-webkit-text-size-adjust:100%}
 body{margin:0;background:var(--bg);color:var(--t);font:15px/1.45 -apple-system,BlinkMacSystemFont,"Inter","Segoe UI",system-ui,sans-serif;padding-top:env(safe-area-inset-top);overflow-x:hidden;touch-action:manipulation}
@@ -17,12 +19,15 @@ nav{position:fixed;left:10px;right:10px;bottom:calc(8px + env(safe-area-inset-bo
 nav button{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 2px;border:0;background:none;color:var(--m);font:inherit;font-size:11px;border-radius:14px;cursor:pointer;transition:background .15s,color .15s}
 nav .on{color:var(--a);background:var(--a2);font-weight:600}
 .mtop{display:flex;margin:4px 0 10px}
-.brand{display:flex;align-items:center;gap:10px}
-.logo{width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,var(--a),#8b5cf6);color:#fff;display:grid;place-items:center;font-weight:700;font-size:14px;letter-spacing:.5px}
-.bn{font-weight:700;font-size:16px;line-height:1.15}.bs{font-size:12px;color:var(--m)}
+.brand{display:flex;align-items:center;gap:12px;min-width:0}
+button.brand{background:none;border:0;padding:0;margin:0;font:inherit;color:inherit;text-align:left;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:opacity .15s}
+button.brand:active{opacity:.7}
+button.brand:focus-visible{outline:2px solid var(--a);outline-offset:4px;border-radius:14px}
+.logo{width:42px;height:42px;flex:0 0 auto;border-radius:12px;background:linear-gradient(135deg,var(--a),#8b5cf6);color:#fff;display:grid;place-items:center}
+.ht{font-weight:800;font-size:26px;line-height:1.1;letter-spacing:-.6px;min-width:0}
 @media(min-width:900px){
  .side{position:fixed;inset:0 auto 0 0;width:248px;background:var(--side);padding:24px 14px;display:flex;flex-direction:column;gap:26px}
- .side .brand{display:flex}.side .bn{color:#fff}.side .bs{color:rgba(255,255,255,.72)}.side .logo{background:rgba(255,255,255,.2)}
+ .side .brand{display:flex;flex-direction:column;align-items:flex-start;gap:14px}.side .ht{color:#fff}.side .logo{background:rgba(255,255,255,.2)}
  nav{position:static;flex-direction:column;background:none;border:0;box-shadow:none;padding:0;gap:4px}
  nav button{flex-direction:row;gap:12px;padding:12px 14px;font-size:14px;color:rgba(255,255,255,.8);justify-content:flex-start}
  nav button:hover{background:rgba(255,255,255,.12)}
@@ -81,6 +86,11 @@ a.l{color:var(--a);cursor:pointer;font-weight:500}
 .seg{display:inline-flex;background:var(--a2);padding:4px;border-radius:14px;margin:8px 0 10px}
 .seg button{border:0;background:none;padding:8px 18px;border-radius:10px;font:inherit;color:var(--m);cursor:pointer}
 .seg .on{background:var(--c);color:var(--a);font-weight:600;box-shadow:var(--sh)}
+.tgl{position:relative;width:52px;height:30px;flex:0 0 auto;border:0;padding:0;border-radius:99px;background:var(--m);cursor:pointer;transition:background .2s;-webkit-tap-highlight-color:transparent}
+.tgl::after{content:"";position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3);transition:transform .2s}
+.tgl[aria-checked="true"]{background:var(--a)}
+.tgl[aria-checked="true"]::after{transform:translateX(22px)}
+.tgl:focus-visible{outline:2px solid var(--a);outline-offset:3px}
 .chips{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
 .chip{border:1px solid var(--b);background:var(--c);color:var(--t);padding:8px 13px;border-radius:99px;font:inherit;font-size:13.5px;cursor:pointer;transition:background .15s}
 .chip.on{background:var(--a);border-color:var(--a);color:var(--bt)}
@@ -123,9 +133,10 @@ const fd=s=>s?String(s).slice(0,10).split('-').reverse().join('/'):'';
 const norm=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
 const CATS=[['toxinas','Toxinas'],['preenchedores','Preenchedores'],['bioestimuladores','Bioestimuladores'],['biorremodeladores','Biorremodeladores'],['skinboosters','SkinBoosters'],['intradermoterapia','Intradermoterapia'],['consumo','Itens de consumo']];
 const catNome=c=>(CATS.find(x=>x[0]===c)||[0,c])[1];
-const IC={home:'<path d="M3 11l9-8 9 8v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/>',plus:'<circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/>',users:'<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 3-6 6.5-6s6.5 2.4 6.5 6"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M18 14c2.2.6 3.5 2.4 3.5 6"/>',clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',grid:'<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>',user:'<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/>',dollar:'<circle cx="12" cy="12" r="9"/><path d="M14.5 9.2a2.6 2 0 0 0-2.5-1.4c-1.5 0-2.5.8-2.5 2s1 1.7 2.5 2 2.5.8 2.5 2-1 2-2.5 2a2.7 2 0 0 1-2.5-1.4M12 6v1.8M12 16.2V18"/>',trend:'<path d="M3 17l6-6 4 4 8-8M15 7h6v6"/>',receipt:'<path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/>',check:'<circle cx="12" cy="12" r="9"/><path d="M8 12.5l3 3 5-6"/>',ticket:'<path d="M3 8a2 2 0 0 0 0 8v2h18v-2a2 2 0 0 1 0-8V6H3z"/><path d="M13 6v12" stroke-dasharray="2 2"/>',pct:'<path d="M19 5L5 19"/><circle cx="7" cy="7" r="2.5"/><circle cx="17" cy="17" r="2.5"/>',hourglass:'<path d="M6 3h12M6 21h12M7 3c0 5 5 6 5 9s-5 4-5 9M17 3c0 5-5 6-5 9s5 4 5 9"/>'};
+const IC={home:'<path d="M3 11l9-8 9 8v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/>',plus:'<circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/>',users:'<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 3-6 6.5-6s6.5 2.4 6.5 6"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M18 14c2.2.6 3.5 2.4 3.5 6"/>',clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',grid:'<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>',user:'<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/>',dollar:'<circle cx="12" cy="12" r="9"/><path d="M14.5 9.2a2.6 2 0 0 0-2.5-1.4c-1.5 0-2.5.8-2.5 2s1 1.7 2.5 2 2.5.8 2.5 2-1 2-2.5 2a2.7 2 0 0 1-2.5-1.4M12 6v1.8M12 16.2V18"/>',trend:'<path d="M3 17l6-6 4 4 8-8M15 7h6v6"/>',receipt:'<path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/>',check:'<circle cx="12" cy="12" r="9"/><path d="M8 12.5l3 3 5-6"/>',ticket:'<path d="M3 8a2 2 0 0 0 0 8v2h18v-2a2 2 0 0 1 0-8V6H3z"/><path d="M13 6v12" stroke-dasharray="2 2"/>',pct:'<path d="M19 5L5 19"/><circle cx="7" cy="7" r="2.5"/><circle cx="17" cy="17" r="2.5"/>',hourglass:'<path d="M6 3h12M6 21h12M7 3c0 5 5 6 5 9s-5 4-5 9M17 3c0 5-5 6-5 9s5 4 5 9"/>',gestao:'<rect x="3.5" y="3.5" width="17" height="17" rx="4"/><path d="M8 16v-4M12 16V8M16 16v-6"/>',moon:'<path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/>'};
 const ic=(k,s=20)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${IC[k]}</svg>`;
-const brand=`<div class="brand"><div class="logo">HA</div><div><div class="bn">Dr. Higor Arruda</div><div class="bs">Gestão do consultório</div></div></div>`;
+/* Cabeçalho do sistema: ícone de gestão + título. brand(1) = tocável (leva ao início); brand() = só visual (telas de login) */
+const brand=lnk=>{const i=`<span class="logo">${ic('gestao',22)}</span><span class="ht">Gestão do Consultório</span>`;return lnk?`<button type="button" class="brand" onclick="irInicio()" aria-label="Gestão do Consultório, ir para a tela inicial">${i}</button>`:`<div class="brand">${i}</div>`};
 let nav='home',arg=null,per=null;
 let DIRTY=false,SW=null,ANIM='';
 let PK={on:false,cat:'',q:'',sel:null,pid:null},PL=[],DIA=null,CAD=[],cadQ='',cadOpen={};
@@ -136,8 +147,16 @@ const ensure=async()=>{if(SESS===undefined)SESS=(await sb.auth.getSession()).dat
 /* go: navegação normal (sempre dados novos). tab: troca de aba (mostra o último conteúdo na hora e atualiza em seguida) */
 const go=(v,a=null)=>{nav=v;arg=a;if(v!=='home')per=null;SEL.h.clear();SEL.p.clear();VC={};draw()};
 const tab=k=>{nav=k;arg=null;per=null;SEL.h.clear();SEL.p.clear();draw(true)};
+/* irInicio: toque no ícone/título do cabeçalho (mesmo aviso de alterações não salvas dos gestos) */
+window.irInicio=()=>{if(DIRTY&&!confirm('Há alterações não salvas. Sair mesmo assim?'))return;window.scrollTo(0,0);tab('home')};
 /* run: protege contra duplo clique / Enter repetido (ignora enquanto a ação anterior não terminou) */
 const run=f=>{let busy=false;return async(...a)=>{if(busy)return;busy=true;try{await f(...a)}catch(e){console.error(e)}finally{busy=false}}};
+
+/* ---------- Tema claro/escuro (escolha salva neste aparelho; sem escolha, segue o sistema) ---------- */
+const isDark=()=>{const t=document.documentElement.getAttribute('data-theme');return t?t==='dark':matchMedia('(prefers-color-scheme:dark)').matches};
+const metaTema=()=>{const m=document.querySelector('meta[name=theme-color]');if(m)m.content=isDark()?'#0e1020':'#4f5bff'};
+window.toggleTema=b=>{const on=b.getAttribute('aria-checked')!=='true',t=on?'dark':'light';document.documentElement.setAttribute('data-theme',t);try{localStorage.setItem('consultorio_tema',t)}catch(e){}b.setAttribute('aria-checked',String(on));metaTema()};
+try{matchMedia('(prefers-color-scheme:dark)').addEventListener('change',metaTema)}catch(e){}
 
 /* ---------- CAPTCHA (Cloudflare Turnstile): só ativa quando config.js tem a chave pública ---------- */
 const TSK=String(window.TURNSTILE_SITE_KEY||'').trim();let TSW=null,TSN=0;
@@ -153,7 +172,7 @@ const tsReset=()=>{try{if(TSW!==null)turnstile.reset(TSW)}catch(e){}};
 const shell=h=>{
   const T=[['home','Início','home'],['nova','Nova','plus'],['pac','Pacientes','users'],['hist','Histórico','clock'],['cad','Cadastros','grid'],['conta','Conta','user']];
   const on=k=>nav===k||(nav==='edit'&&k==='hist')||(nav==='prod'&&k==='cad');
-  return`<div class="shell"><aside class="side">${brand}<nav>${T.map(([k,t,i])=>`<button class="${on(k)?'on':''}" onclick="tab('${k}')">${ic(i,22)}<span>${t}</span></button>`).join('')}</nav></aside><main><div class="mtop">${brand}</div>${h}</main></div>`;
+  return`<div class="shell"><aside class="side">${brand(1)}<nav>${T.map(([k,t,i])=>`<button class="${on(k)?'on':''}" onclick="tab('${k}')">${ic(i,22)}<span>${t}</span></button>`).join('')}</nav></aside><main><div class="mtop">${brand(1)}</div>${h}</main></div>`;
 };
 function paint(h){
   $.innerHTML=shell(h);
@@ -168,12 +187,12 @@ async function draw(swr){
   if(!session){
     RECOV=false;
     $.innerHTML=LM==='forgot'
-     ?`<div class="login"><div class="card">${brand}<h3>Recuperar senha</h3><div class="m">Informe seu e-mail e enviaremos um link para criar uma nova senha.</div><label>E-mail</label><input id="fg_em" type="email" autocomplete="username">${tsBox()}<button class="b" onclick="esqueci()">Enviar link</button><div style="margin-top:8px"><a class="l" onclick="LM='login';draw()">← Voltar ao login</a></div></div></div>`
-     :`<div class="login"><div class="card">${brand}<label>E-mail</label><input id="em" type="email" autocomplete="username"><label>Senha</label><input id="pw" type="password" autocomplete="current-password">${tsBox()}<button class="b" onclick="login()">Entrar</button><div style="margin-top:8px"><a class="l" onclick="LM='forgot';draw()">Esqueci minha senha</a></div></div></div>`;
+     ?`<div class="login"><div class="card">${brand()}<h3>Recuperar senha</h3><div class="m">Informe seu e-mail e enviaremos um link para criar uma nova senha.</div><label>E-mail</label><input id="fg_em" type="email" autocomplete="username">${tsBox()}<button class="b" onclick="esqueci()">Enviar link</button><div style="margin-top:8px"><a class="l" onclick="LM='login';draw()">← Voltar ao login</a></div></div></div>`
+     :`<div class="login"><div class="card">${brand()}<label>E-mail</label><input id="em" type="email" autocomplete="username"><label>Senha</label><input id="pw" type="password" autocomplete="current-password">${tsBox()}<button class="b" onclick="login()">Entrar</button><div style="margin-top:8px"><a class="l" onclick="LM='forgot';draw()">Esqueci minha senha</a></div></div></div>`;
     tsRender();
     return}
   if(RECOV){
-    $.innerHTML=`<div class="login"><div class="card">${brand}<h3>Definir nova senha</h3><label>Nova senha (mínimo 8 caracteres)</label><input id="rec_n" type="password" autocomplete="new-password"><label>Confirmar nova senha</label><input id="rec_c" type="password" autocomplete="new-password"><button class="b" onclick="novaSenhaRec()">Salvar nova senha</button><div style="margin-top:8px"><a class="l" onclick="sair()">Cancelar</a></div></div></div>`;
+    $.innerHTML=`<div class="login"><div class="card">${brand()}<h3>Definir nova senha</h3><label>Nova senha (mínimo 8 caracteres)</label><input id="rec_n" type="password" autocomplete="new-password"><label>Confirmar nova senha</label><input id="rec_c" type="password" autocomplete="new-password"><button class="b" onclick="novaSenhaRec()">Salvar nova senha</button><div style="margin-top:8px"><a class="l" onclick="sair()">Cancelar</a></div></div></div>`;
     return}
   const V={home:vHome,nova:vNova,pac:vPac,hist:vHist,edit:vEdit,cad:vCad,prod:vProd,conta:vConta}[nav];
   const k=[nav,arg,per,py,pm,cadQ].join('|'),cacheable=['home','pac','hist','cad'].includes(nav);
@@ -542,6 +561,7 @@ async function vConta(){
   <div class="row"><span>E-mail</span><span class="r">${esc(u.email||'')}</span></div>
   <div class="row"><span>Conta criada em</span><span class="r">${u.created_at?dt(u.created_at):'—'}</span></div>
   <div class="row"><span>Último acesso</span><span class="r">${u.last_sign_in_at?dt(u.last_sign_in_at):'—'}</span></div></div>
+  <div class="card"><h3>Aparência</h3><div class="row"><span class="grow" style="display:flex;align-items:center;gap:10px"><span style="color:var(--a);display:grid">${ic('moon')}</span><span>Modo escuro<br><span class="m">Alterna entre a versão clara e a escura</span></span></span><button type="button" class="tgl" role="switch" aria-checked="${isDark()}" aria-label="Modo escuro" onclick="toggleTema(this)"></button></div></div>
   <div class="card"><h3>Alterar senha</h3><label>Nova senha (mínimo 8 caracteres)</label><input id="cp_n" type="password" autocomplete="new-password"><label>Confirmar nova senha</label><input id="cp_c" type="password" autocomplete="new-password"><button class="b" onclick="trocaSenha()">Alterar senha</button></div>
   <div class="card"><h3>Dados e sessão</h3><button class="b g" onclick="backup()">Exportar backup (JSON)</button><button class="b g" onclick="sair()">Sair da conta</button></div>`;
 }

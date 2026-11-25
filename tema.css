@@ -5,13 +5,20 @@
  --bad:#b3382c;--ok:#2f6a3b;--okb:#e6f0e2;--wn:#a8482a;--wnb:#f9e6dc;
  --sh:0 1px 2px rgba(60,40,20,.05),0 10px 28px rgba(60,40,20,.07);--side:#211a15;--gold:#d9b062
 }
-@media(prefers-color-scheme:dark){:root{
+/* Escuro: segue o sistema, a menos que o interruptor da aba Conta tenha escolhido (data-theme) */
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){
  --bg:#16120f;--c:#201b17;--t:#f1e9dd;--m:#b3a594;
  --a:#d9b062;--a2:#33291b;--a3:#a67c2e;--bt:#1a140d;--b:#332b24;
  --bad:#ef7a6b;--ok:#8fcf8a;--okb:#1d2b1c;--wn:#e59a74;--wnb:#3a2417;--sh:none;--side:#100d0b
 }}
+:root[data-theme="dark"]{
+ --bg:#16120f;--c:#201b17;--t:#f1e9dd;--m:#b3a594;
+ --a:#d9b062;--a2:#33291b;--a3:#a67c2e;--bt:#1a140d;--b:#332b24;
+ --bad:#ef7a6b;--ok:#8fcf8a;--okb:#1d2b1c;--wn:#e59a74;--wnb:#3a2417;--sh:none;--side:#100d0b
+}
 body{background-image:linear-gradient(180deg,rgba(201,162,77,.10),transparent 320px);background-repeat:no-repeat}
-@media(prefers-color-scheme:dark){body{background-image:linear-gradient(180deg,rgba(217,176,98,.07),transparent 320px)}}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]) body{background-image:linear-gradient(180deg,rgba(217,176,98,.07),transparent 320px)}}
+:root[data-theme="dark"] body{background-image:linear-gradient(180deg,rgba(217,176,98,.07),transparent 320px)}
 ::selection{background:var(--a2)}
 input[type=checkbox]{accent-color:var(--a)}
 .logo,.side .logo{background:linear-gradient(135deg,#e3c27a,#b98f3e);color:#2a1c0c;box-shadow:0 4px 12px -4px rgba(134,97,26,.5)}
@@ -29,7 +36,7 @@ button.g,button.bd{box-shadow:none}
 }
 @media(min-width:900px){
  .side{background:linear-gradient(180deg,var(--side),#17120e);box-shadow:inset -1px 0 0 rgba(255,255,255,.04)}
- .side .bn{color:#f6eddc}.side .bs{color:rgba(246,237,222,.62)}
+ .side .ht{color:#f6eddc}
  nav button{color:rgba(246,237,222,.72);border-radius:12px}
  nav button:hover{background:rgba(217,176,98,.10);color:#f6eddc}
  nav .on{background:rgba(217,176,98,.16);color:#f1d9a3;box-shadow:inset 3px 0 0 var(--gold)}
