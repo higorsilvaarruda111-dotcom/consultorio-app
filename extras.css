@@ -1,0 +1,18 @@
+/* Desktop: menu lateral liso (sem onda própria). A onda do fundo passa por trás do menu e é cortada pela borda dele, sem descontinuidade. Mobile não é afetado. */
+@media(min-width:900px){.side{background:linear-gradient(180deg,var(--side),#17120e)}}
+/* Gráficos da tela inicial */
+.gf-h{margin:22px 0 4px}.gf-h h3{margin:0 0 2px;font-size:18px}
+.gfg{display:grid;grid-template-columns:minmax(0,1fr);gap:12px;margin:8px 0 4px}.gfg>.card{margin:0}
+@media(min-width:900px){.gfg{grid-template-columns:minmax(0,1.6fr) minmax(0,1fr)}}
+.seg.gfseg{max-width:100%;overflow-x:auto;scrollbar-width:none;margin:10px 0 4px}.seg.gfseg::-webkit-scrollbar{display:none}
+.seg.gfseg button{padding:7px 12px;font-size:13.5px;white-space:nowrap}
+.gf-svg{width:100%;height:auto;display:block;overflow:visible}
+.gf-svg text{fill:var(--m);font-size:11px;font-family:inherit}
+.gf-grid{stroke:var(--b);stroke-width:1}
+.gf-line{fill:none;stroke:var(--a);stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.gf-dot{fill:var(--c);stroke:var(--a);stroke-width:2}
+.gf-hit{fill:transparent;cursor:pointer}
+.rk{margin:0 0 12px}.rk-t{display:flex;align-items:baseline;gap:8px;font-size:14px}
+.rk-n{width:18px;color:var(--m);font-size:12.5px}
+.rk-b{height:8px;border-radius:99px;background:var(--a2);margin-top:6px;overflow:hidden}
+.rk-b i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--a3),var(--a))}
