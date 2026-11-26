@@ -111,12 +111,22 @@ details.cat>button{margin:10px 0 12px}
 @keyframes up{from{opacity:0;transform:translateY(6px)}}
 @keyframes swr{from{opacity:0;transform:translateX(-28px)}}@keyframes swl{from{opacity:0;transform:translateX(28px)}}
 @media(prefers-reduced-motion:no-preference){main.swr>*{animation:swr .26s ease both}main.swl>*{animation:swl .26s ease both}}
-</style><link rel="stylesheet" href="tema.css?v=20261126"><link rel="stylesheet" href="extras.css?v=20261126"></head><body><div id="app"></div>
+/* Esqueletos de carregamento (blocos cinza pulsantes enquanto os dados chegam) */
+.sk{background:linear-gradient(90deg,var(--b) 25%,var(--a2) 40%,var(--b) 60%);background-size:300% 100%;animation:skl 1.3s ease-in-out infinite;border-radius:14px}
+.sk-t{height:30px;width:55%;margin:8px 0 14px}.sk-c{height:96px;margin:12px 0}.sk-s{height:56px;margin:12px 0}
+.skp{max-width:1040px;margin:0 auto;padding:12px 16px}
+@keyframes skl{from{background-position:100% 0}to{background-position:0 0}}
+@media(prefers-reduced-motion:reduce){.sk{animation:none}}
+main>.sk{animation:skl 1.3s ease-in-out infinite}
+@media(prefers-reduced-motion:reduce){main>.sk{animation:none}}
+</style><link rel="stylesheet" href="tema.css?v=20261126"><link rel="stylesheet" href="extras.css?v=20261126"></head><body><div id="app"><div class="skp" aria-hidden="true"><div class="sk sk-t"></div><div class="sk sk-c"></div><div class="sk sk-c"></div><div class="sk sk-s"></div></div></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script src="config.js"></script>
-<script src="extras.js?v=20261126"></script>
+<script src="extras.js?v=20261126b"></script>
 <script>
-const sb=supabase.createClient('https://lriuxkkcpeavmtzgwlno.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxyaXV4a2tjcGVhdm10emd3bG5vIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTUyMjg3MTUsImV4cCI6MjExMDgwNDcxNX0.1IUTkB4oVzqRddfcGmLD09NA9rCpBmgrCbZ9u9wlHUY');
+/* Tempo limite de rede (30 s): se a conexão travar, a chamada falha com aviso em vez de ficar esperando para sempre */
+const tmoFetch=(u,o={})=>{const c=new AbortController(),t=setTimeout(()=>c.abort(),30000);if(o.signal){if(o.signal.aborted)c.abort();else o.signal.addEventListener('abort',()=>c.abort())}return fetch(u,{...o,signal:c.signal}).finally(()=>clearTimeout(t))};
+const sb=supabase.createClient('https://lriuxkkcpeavmtzgwlno.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxyaXV4a2tjcGVhdm10emd3bG5vIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTUyMjg3MTUsImV4cCI6MjExMDgwNDcxNX0.1IUTkB4oVzqRddfcGmLD09NA9rCpBmgrCbZ9u9wlHUY',{global:{fetch:tmoFetch}});
 const $=document.getElementById('app'),G=i=>document.getElementById(i)?.value??'';
 const R=v=>Number(v||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
 /* N: texto -> número (vazio vira 0 nas contas). P: vazio vira null. */
@@ -140,11 +150,11 @@ const ic=(k,s=20)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="no
    O título "Gestão do Consultório" só aparece na tela inicial (e no login); nas páginas internas fica só o ícone. */
 const brand=(lnk,tit=true)=>{const i=`<span class="logo">${ic('gestao',22)}</span>${tit?'<span class="ht">Gestão do Consultório</span>':''}`;return lnk?`<button type="button" class="brand" onclick="irInicio()" aria-label="Gestão do Consultório, ir para a tela inicial">${i}</button>`:`<div class="brand">${i}</div>`};
 let nav='home',arg=null,per=null,HQ='',PQ='';
-let DIRTY=false,SW=null,ANIM='';
+let DIRTY=false,SW=null,ANIM='',PN=null;
 let PK={on:false,cat:'',q:'',sel:null,pid:null},PL=[],DIA=null,CAD=[],cadQ='',cadOpen={};
 let SESS,RECOV=/type=recovery/.test(location.hash),LM='login',VC={},DRAWN=0,PC=null,DL='v';
 const SEL={h:new Set(),p:new Set()},VIS={h:[],p:[]};
-async function q(p){const{data,error}=await p;if(error){alert(error.message);throw error}return data}
+async function q(p){const{data,error}=await p;if(error){alert(/abort/i.test(error.message||'')?'A conexão demorou demais. Verifique a internet e tente de novo.':error.message);throw error}return data}
 const ensure=async()=>{if(SESS===undefined)SESS=(await sb.auth.getSession()).data.session;return SESS};
 /* go: navegação normal (sempre dados novos). tab: troca de aba (mostra o último conteúdo na hora e atualiza em seguida).
    A busca do Histórico/Pacientes é limpa ao sair dessas telas. */
@@ -178,7 +188,10 @@ const shell=h=>{
   const tit=nav==='home';
   return`<div class="shell"><aside class="side">${brand(1,tit)}<nav>${T.map(([k,t,i])=>`<button class="${on(k)?'on':''}" onclick="tab('${k}')">${ic(i,22)}<span>${t}</span></button>`).join('')}</nav></aside><main><div class="mtop">${brand(1,tit)}</div>${h}</main></div>`;
 };
+/* Esqueleto: só aparece quando a tela muda e os dados demoram mais de 150 ms (telas rápidas não piscam) */
+const SKL='<div class="sk sk-t"></div><div class="sk sk-c"></div><div class="sk sk-c"></div><div class="sk sk-s"></div>';
 function paint(h){
+  PN=nav;
   $.innerHTML=shell(h);
   if(nav==='edit'){pkRender();diaInfo();syncDescUI()}
   if(nav==='cad')cadRender();
@@ -202,7 +215,10 @@ async function draw(swr){
   const k=[nav,arg,per,py,pm,cadQ].join('|'),cacheable=['home','pac','hist','cad'].includes(nav);
   let shown=null;
   if(swr&&cacheable&&VC[k]!=null){shown=VC[k];paint(shown)}
+  let skT=null;
+  if(shown===null&&PN!==nav)skT=setTimeout(()=>{if(my===DRAWN)$.innerHTML=shell(SKL)},150);
   let h='';try{h=await V(arg)}catch(e){console.error(e);h='<div class="card bad">Não foi possível carregar. Verifique a conexão.</div>'}
+  clearTimeout(skT);
   if(my!==DRAWN)return;
   if(cacheable)VC[k]=h;
   if(h!==shown)paint(h);
@@ -237,7 +253,9 @@ const MES=['janeiro','fevereiro','março','abril','maio','junho','julho','agosto
 let py=null,pm=null;
 async function vHome(){
   const an=arg==='a',k=an?'ano':'mes';
-  const[rows,abl,gfd]=await Promise.all([q(sb.from(an?'vw_dashboard_anual':'vw_dashboard_mensal').select('*').order(k,{ascending:false})),q(sb.from('vw_pipeline').select('*')),gfLoad()]);
+  /* No modo mensal a mesma view alimenta os cards e os gráficos: pedida uma vez só */
+  const rp=q(sb.from(an?'vw_dashboard_anual':'vw_dashboard_mensal').select('*').order(k,{ascending:false}));
+  const[rows,abl,gfd]=await Promise.all([rp,q(sb.from('vw_pipeline').select('*')),gfLoad(an?null:rp)]);
   const hd=`<div class="ph"><h2>Visão geral</h2><div class="m">Indicadores apenas de precificações concluídas</div></div>`;
   const tog=`<div class="seg"><button class="${an?'':'on'}" onclick="go('home','m')">Mensal</button><button class="${an?'on':''}" onclick="go('home','a')">Anual</button></div>`;
   const pl=abl[0]||{},blk=(cl,i_,t,n,l2,v,sem)=>`<div class="card open ${cl}"><div class="oh"><div class="ki">${ic(i_)}</div><span class="tag ${cl==='and'?'ok':'warn'}">${t}</span></div><div class="grid2"><div><div class="m">Abertos</div><div class="k">${Number(n||0)}</div></div><div><div class="m">${l2}</div><div class="k">${R(v)}</div></div></div>${Number(sem)>0?`<div class="m" style="margin-top:8px">${Number(sem)} sem valor definido</div>`:''}</div>`;
@@ -357,25 +375,26 @@ const dt=x=>new Date(x).toLocaleDateString('pt-BR');
 const rowsP=(l,k)=>l.map(x=>`<div class="row">${k?ckx(k,x.id):''}<span class="grow"><a class="l" onclick="go('edit','${x.id}')">${esc(x.pacientes?.nome?x.pacientes.nome+' · ':'')}${esc(x.procedimento)}</a><br><span class="m">Criada em ${dt(x.criado_em)}${x.status==='concluida'&&x.concluida_em?' · concluída em '+dt(x.concluida_em):''}</span></span><span class="r"><span class="tag ${x.status==='concluida'?'ok':x.status==='cancelada'?'':'warn'}">${ST[x.status]}</span> ${x.valor_total_cobrado>0?R(x.valor_total_cobrado):''}</span>${k?xbtn(k,x.id):''}</div>`).join('');
 
 /* ---------- Histórico (busca por paciente integrada aos filtros de status) ---------- */
-let HPN=[],HT=null,HS=0;
+/* HPN (lista de pacientes para a busca) só é pedida quando a pessoa realmente busca; HLIM = quantas linhas a lista mostra */
+let HPN=null,HT=null,HS=0;const HLIM=100;
 async function histDados(f){
   const t=norm(HQ.trim());let ids=null;
-  if(t){ids=HPN.filter(p=>norm(p.nome).includes(t)).map(p=>p.id);if(!ids.length)return[]}
-  let s=sb.from('precificacoes').select('id,procedimento,status,valor_total_cobrado,criado_em,concluida_em,pacientes(nome)').order('criado_em',{ascending:false}).limit(100);
+  if(t){if(!HPN)HPN=await q(sb.from('pacientes').select('id,nome'));ids=HPN.filter(p=>norm(p.nome).includes(t)).map(p=>p.id);if(!ids.length)return[]}
+  let s=sb.from('precificacoes').select('id,procedimento,status,valor_total_cobrado,criado_em,concluida_em,pacientes(nome)').order('criado_em',{ascending:false}).limit(HLIM);
   if(ids)s=s.in('paciente_id',ids);
   s=f==='arq'?s.eq('arquivada',true):(f?s.eq('status',f):s).eq('arquivada',false);
   return q(s);
 }
 function histLista(l){
   VIS.h=l.map(x=>x.id);SEL.h=new Set([...SEL.h].filter(i=>VIS.h.includes(i)));
-  return(l.length?bar('h'):'')+(rowsP(l,'h')||`<span class="m">${HQ.trim()?'Nenhuma precificação encontrada para esta busca.':'Nada por aqui.'}</span>`);
+  return(l.length?bar('h'):'')+(rowsP(l,'h')||`<span class="m">${HQ.trim()?'Nenhuma precificação encontrada para esta busca.':'Nada por aqui.'}</span>`)+(l.length>=HLIM?`<div class="m" style="margin-top:8px">Mostrando as ${HLIM} mais recentes. Use a busca para localizar as demais.</div>`:'');
 }
 window.hQ=v=>{HQ=v;clearTimeout(HT);HT=setTimeout(async()=>{
   const my=++HS,f=arg;
   try{const l=await histDados(f);if(my!==HS||nav!=='hist')return;const e=document.getElementById('hist_list');if(e){e.innerHTML=histLista(l);selUI('h')}}catch(e){}
 },200)};
 async function vHist(f){
-  HPN=await q(sb.from('pacientes').select('id,nome'));
+  HPN=null;
   const l=await histDados(f);
   return`<div class="ph"><h2>Histórico de precificações</h2></div><div class="hfil"><select onchange="go('hist',this.value||null)"><option value="">Todas</option>${Object.entries(ST).map(([k,t])=>`<option value="${k}" ${f===k?'selected':''}>${t}</option>`).join('')}<option value="arq" ${f==='arq'?'selected':''}>Arquivadas</option></select>
   <input id="h_q" type="search" placeholder="Buscar precificação..." value="${esc(HQ)}" oninput="hQ(this.value)" autocomplete="off" aria-label="Buscar precificação pelo nome do paciente"></div>
@@ -610,9 +629,11 @@ window.excProd=run(async id=>{
   const r=await q(sb.rpc('excluir_produto',{p_id:id}));PC=null;
   alert(r==='arquivado'?'Este produto já foi usado em precificações, então foi arquivado (sai das listas e o histórico fica preservado).':'Produto excluído.');go('cad')});
 window.novaTaxa=run(async(f,pa)=>{const v=prompt('Nova taxa (%):');if(v===null||v==='')return;await q(sb.from('taxas_cartao').insert({forma:f,parcelas:pa||null,percentual:N(v)}));go('cad')});
+/* Backup: o servidor devolve no máximo 1000 linhas por pedido; por isso cada tabela é lida em blocos de 1000 (ordenados por id) até acabar */
+const lerTudo=async t=>{let o=[],i=0,n;do{const r=await q(sb.from(t).select('*').order('id').range(i,i+999));o=o.concat(r);n=r.length;i+=1000}while(n===1000);return o};
 window.backup=run(async()=>{
   const out={gerado_em:new Date().toISOString()};
-  for(const t of['pacientes','dias_atendimento','dia_custos','itens_custo_nomes','produtos','produto_precos','procedimentos','taxas_cartao','precificacoes','precificacao_materiais','sessoes','snapshots','historico_alteracoes'])out[t]=await q(sb.from(t).select('*'));
+  for(const t of['pacientes','dias_atendimento','dia_custos','itens_custo_nomes','produtos','produto_precos','procedimentos','taxas_cartao','precificacoes','precificacao_materiais','sessoes','snapshots','historico_alteracoes'])out[t]=await lerTudo(t);
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(out,null,1)],{type:'application/json'}));a.download='backup-consultorio-'+hoje()+'.json';a.click();
 });
 
