@@ -111,10 +111,10 @@ details.cat>button{margin:10px 0 12px}
 @keyframes up{from{opacity:0;transform:translateY(6px)}}
 @keyframes swr{from{opacity:0;transform:translateX(-28px)}}@keyframes swl{from{opacity:0;transform:translateX(28px)}}
 @media(prefers-reduced-motion:no-preference){main.swr>*{animation:swr .26s ease both}main.swl>*{animation:swl .26s ease both}}
-</style><link rel="stylesheet" href="tema.css"><link rel="stylesheet" href="extras.css"></head><body><div id="app"></div>
+</style><link rel="stylesheet" href="tema.css?v=20261126"><link rel="stylesheet" href="extras.css?v=20261126"></head><body><div id="app"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script src="config.js"></script>
-<script src="extras.js"></script>
+<script src="extras.js?v=20261126"></script>
 <script>
 const sb=supabase.createClient('https://lriuxkkcpeavmtzgwlno.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxyaXV4a2tjcGVhdm10emd3bG5vIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTUyMjg3MTUsImV4cCI6MjExMDgwNDcxNX0.1IUTkB4oVzqRddfcGmLD09NA9rCpBmgrCbZ9u9wlHUY');
 const $=document.getElementById('app'),G=i=>document.getElementById(i)?.value??'';
@@ -378,7 +378,7 @@ async function vHist(f){
   HPN=await q(sb.from('pacientes').select('id,nome'));
   const l=await histDados(f);
   return`<div class="ph"><h2>Histórico de precificações</h2></div><div class="hfil"><select onchange="go('hist',this.value||null)"><option value="">Todas</option>${Object.entries(ST).map(([k,t])=>`<option value="${k}" ${f===k?'selected':''}>${t}</option>`).join('')}<option value="arq" ${f==='arq'?'selected':''}>Arquivadas</option></select>
-  <input id="h_q" type="search" placeholder="Buscar paciente..." value="${esc(HQ)}" oninput="hQ(this.value)" autocomplete="off" aria-label="Buscar paciente"></div>
+  <input id="h_q" type="search" placeholder="Buscar precificação..." value="${esc(HQ)}" oninput="hQ(this.value)" autocomplete="off" aria-label="Buscar precificação pelo nome do paciente"></div>
   <div class="card" id="hist_list">${histLista(l)}</div>`;
 }
 
