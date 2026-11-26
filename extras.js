@@ -6,10 +6,11 @@ const PERS=[['6m','6 meses'],['12m','12 meses'],['ano','Este ano'],['tudo','Tudo
 let GP='12m',GD=null,PTS=[],ALL=false,LASTW=0;
 
 /* ---------- dados (a partir das views; nada digitado à mão) ---------- */
-window.gfLoad=async()=>{
+/* pre: promessa da view mensal já pedida pela tela inicial (evita pedir a mesma view duas vezes) */
+window.gfLoad=async pre=>{
   try{
     const[a,b]=await Promise.all([
-      sb.from('vw_dashboard_mensal').select('mes,faturamento,tratamentos_concluidos'),
+      pre?pre.then(d=>({data:d})):sb.from('vw_dashboard_mensal').select('mes,faturamento,tratamentos_concluidos'),
       sb.from('vw_procedimentos_mensal').select('mes,procedimento_id,procedimento,qtd,faturamento')]);
     if(a.error||b.error)return null;
     return{m:a.data||[],p:b.data||[]};
