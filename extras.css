@@ -1,5 +1,9 @@
-/* Desktop: menu lateral liso (sem onda própria). A onda do fundo passa por trás do menu e é cortada pela borda dele, sem descontinuidade. Mobile não é afetado. */
-@media(min-width:900px){.side{background:linear-gradient(180deg,var(--side),#17120e)}}
+/* Desktop: menu lateral liso (sem onda), mesma cor de fundo de antes. A regra com !important garante que a onda antiga (tema.css) não volte. Mobile não é afetado. */
+@media(min-width:900px){
+ aside.side{background:linear-gradient(180deg,var(--side),#17120e)!important}
+ /* Campo de busca de Pacientes: respeita a mesma largura máxima dos cards (a regra input{max-width:100%} vencia main>*{max-width:1000px}) */
+ main>input[type=search]{max-width:1000px}
+}
 /* Gráficos da tela inicial */
 .gf-h{margin:22px 0 4px}.gf-h h3{margin:0 0 2px;font-size:18px}
 .gfg{display:grid;grid-template-columns:minmax(0,1fr);gap:12px;margin:8px 0 4px}.gfg>.card{margin:0}
