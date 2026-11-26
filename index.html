@@ -136,18 +136,20 @@ const CATS=[['toxinas','Toxinas'],['preenchedores','Preenchedores'],['bioestimul
 const catNome=c=>(CATS.find(x=>x[0]===c)||[0,c])[1];
 const IC={home:'<path d="M3 11l9-8 9 8v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/>',plus:'<circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/>',users:'<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 3-6 6.5-6s6.5 2.4 6.5 6"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M18 14c2.2.6 3.5 2.4 3.5 6"/>',clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',grid:'<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>',user:'<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/>',dollar:'<circle cx="12" cy="12" r="9"/><path d="M14.5 9.2a2.6 2 0 0 0-2.5-1.4c-1.5 0-2.5.8-2.5 2s1 1.7 2.5 2 2.5.8 2.5 2-1 2-2.5 2a2.7 2 0 0 1-2.5-1.4M12 6v1.8M12 16.2V18"/>',trend:'<path d="M3 17l6-6 4 4 8-8M15 7h6v6"/>',receipt:'<path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/>',check:'<circle cx="12" cy="12" r="9"/><path d="M8 12.5l3 3 5-6"/>',ticket:'<path d="M3 8a2 2 0 0 0 0 8v2h18v-2a2 2 0 0 1 0-8V6H3z"/><path d="M13 6v12" stroke-dasharray="2 2"/>',pct:'<path d="M19 5L5 19"/><circle cx="7" cy="7" r="2.5"/><circle cx="17" cy="17" r="2.5"/>',hourglass:'<path d="M6 3h12M6 21h12M7 3c0 5 5 6 5 9s-5 4-5 9M17 3c0 5-5 6-5 9s5 4 5 9"/>',gestao:'<rect x="3.5" y="3.5" width="17" height="17" rx="4"/><path d="M8 16v-4M12 16V8M16 16v-6"/>',moon:'<path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/>'};
 const ic=(k,s=20)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${IC[k]}</svg>`;
-/* Cabeçalho do sistema: ícone de gestão + título. brand(1) = tocável (leva ao início); brand() = só visual (telas de login) */
-const brand=lnk=>{const i=`<span class="logo">${ic('gestao',22)}</span><span class="ht">Gestão do Consultório</span>`;return lnk?`<button type="button" class="brand" onclick="irInicio()" aria-label="Gestão do Consultório, ir para a tela inicial">${i}</button>`:`<div class="brand">${i}</div>`};
-let nav='home',arg=null,per=null;
+/* Cabeçalho do sistema: ícone de gestão + título. brand(1) = tocável (leva ao início); brand() = só visual (telas de login).
+   O título "Gestão do Consultório" só aparece na tela inicial (e no login); nas páginas internas fica só o ícone. */
+const brand=(lnk,tit=true)=>{const i=`<span class="logo">${ic('gestao',22)}</span>${tit?'<span class="ht">Gestão do Consultório</span>':''}`;return lnk?`<button type="button" class="brand" onclick="irInicio()" aria-label="Gestão do Consultório, ir para a tela inicial">${i}</button>`:`<div class="brand">${i}</div>`};
+let nav='home',arg=null,per=null,HQ='',PQ='';
 let DIRTY=false,SW=null,ANIM='';
 let PK={on:false,cat:'',q:'',sel:null,pid:null},PL=[],DIA=null,CAD=[],cadQ='',cadOpen={};
 let SESS,RECOV=/type=recovery/.test(location.hash),LM='login',VC={},DRAWN=0,PC=null,DL='v';
 const SEL={h:new Set(),p:new Set()},VIS={h:[],p:[]};
 async function q(p){const{data,error}=await p;if(error){alert(error.message);throw error}return data}
 const ensure=async()=>{if(SESS===undefined)SESS=(await sb.auth.getSession()).data.session;return SESS};
-/* go: navegação normal (sempre dados novos). tab: troca de aba (mostra o último conteúdo na hora e atualiza em seguida) */
-const go=(v,a=null)=>{nav=v;arg=a;if(v!=='home')per=null;SEL.h.clear();SEL.p.clear();VC={};draw()};
-const tab=k=>{nav=k;arg=null;per=null;SEL.h.clear();SEL.p.clear();draw(true)};
+/* go: navegação normal (sempre dados novos). tab: troca de aba (mostra o último conteúdo na hora e atualiza em seguida).
+   A busca do Histórico/Pacientes é limpa ao sair dessas telas. */
+const go=(v,a=null)=>{nav=v;arg=a;if(v!=='home')per=null;if(v!=='hist')HQ='';if(v!=='pac')PQ='';SEL.h.clear();SEL.p.clear();VC={};draw()};
+const tab=k=>{nav=k;arg=null;per=null;if(k!=='hist')HQ='';if(k!=='pac')PQ='';SEL.h.clear();SEL.p.clear();draw(true)};
 /* irInicio: toque no ícone/título do cabeçalho (mesmo aviso de alterações não salvas dos gestos) */
 window.irInicio=()=>{if(DIRTY&&!confirm('Há alterações não salvas. Sair mesmo assim?'))return;window.scrollTo(0,0);tab('home')};
 /* run: protege contra duplo clique / Enter repetido (ignora enquanto a ação anterior não terminou) */
@@ -173,7 +175,8 @@ const tsReset=()=>{try{if(TSW!==null)turnstile.reset(TSW)}catch(e){}};
 const shell=h=>{
   const T=[['home','Início','home'],['nova','Nova','plus'],['pac','Pacientes','users'],['hist','Histórico','clock'],['cad','Cadastros','grid'],['conta','Conta','user']];
   const on=k=>nav===k||(nav==='edit'&&k==='hist')||(nav==='prod'&&k==='cad');
-  return`<div class="shell"><aside class="side">${brand(1)}<nav>${T.map(([k,t,i])=>`<button class="${on(k)?'on':''}" onclick="tab('${k}')">${ic(i,22)}<span>${t}</span></button>`).join('')}</nav></aside><main><div class="mtop">${brand(1)}</div>${h}</main></div>`;
+  const tit=nav==='home';
+  return`<div class="shell"><aside class="side">${brand(1,tit)}<nav>${T.map(([k,t,i])=>`<button class="${on(k)?'on':''}" onclick="tab('${k}')">${ic(i,22)}<span>${t}</span></button>`).join('')}</nav></aside><main><div class="mtop">${brand(1,tit)}</div>${h}</main></div>`;
 };
 function paint(h){
   $.innerHTML=shell(h);
@@ -323,28 +326,60 @@ window.excluir=run(async(k,ids,volta)=>{
 });
 
 /* ---------- Pacientes ---------- */
+let PACL=[];
+function pacLista(){
+  const t=norm(PQ.trim()),l=PACL.filter(p=>!t||norm(p.nome).includes(t));
+  VIS.p=l.map(p=>p.id);SEL.p=new Set([...SEL.p].filter(i=>VIS.p.includes(i)));
+  return(l.length?bar('p'):'')+(l.map(p=>`<div class="row">${ckx('p',p.id)}<span class="grow"><a class="l" onclick="go('pac','${p.id}')">${esc(p.nome)}</a></span><span class="m">${esc(p.telefone||'')}</span>${xbtn('p',p.id)}</div>`).join('')||`<span class="m">${t?'Nenhum paciente encontrado para esta busca.':'Nenhum paciente.'}</span>`);
+}
+window.pQ=v=>{PQ=v;const e=document.getElementById('pac_list');if(e){e.innerHTML=pacLista();selUI('p')}};
 async function vPac(id){
   if(id&&id!=='arq'){
     const[p,l]=await Promise.all([q(sb.from('pacientes').select('*').eq('id',id).single()),q(sb.from('precificacoes').select('id,procedimento,status,valor_total_cobrado,criado_em,concluida_em').eq('paciente_id',id).order('criado_em',{ascending:false}))]);
-    return`<a class="l" onclick="go('pac')">← Pacientes</a><div class="ph"><h2>${esc(p.nome)}</h2><div class="m">${esc(p.telefone||'')} · cadastrado em ${new Date(p.criado_em).toLocaleDateString('pt-BR')}</div></div>
+    return`<a class="l" onclick="go('pac')">← Pacientes</a><div class="ph" id="pn_view"><h2>${esc(p.nome)}</h2><div class="m">${esc(p.telefone||'')} · cadastrado em ${new Date(p.criado_em).toLocaleDateString('pt-BR')}</div><a class="l" onclick="pacEditNome()">Editar nome</a></div>
+    <div class="card" id="pn_edit" hidden><label>Nome do paciente</label><input id="pn_n" value="${esc(p.nome)}" data-o="${esc(p.nome)}" autocomplete="off"><button class="b" onclick="pacSalvarNome('${id}')">Salvar</button><button class="b g" onclick="pacCancelarNome()">Cancelar</button></div>
     <button class="b" onclick="novaPara('${id}')">Nova precificação</button><button class="b g" onclick="arq('pacientes','${id}',${!p.arquivado},'pac')">${p.arquivado?'Desarquivar':'Arquivar'}</button><button class="x" onclick="excluir('p',['${id}'],['pac',null])">Excluir definitivamente</button><div class="card"><h3>Precificações</h3>${rowsP(l)||'<span class="m">Nenhuma ainda.</span>'}</div>`;
   }
-  const l=await q(sb.from('pacientes').select('id,nome,telefone').eq('arquivado',id==='arq').order('nome'));
-  VIS.p=l.map(p=>p.id);
+  PACL=await q(sb.from('pacientes').select('id,nome,telefone').eq('arquivado',id==='arq').order('nome'));
   return`<div class="ph"><h2>Pacientes</h2></div><div class="card"><input id="p_n" placeholder="Nome"><input id="p_t" placeholder="Telefone (opcional)" inputmode="tel"><button class="b" onclick="addPac()">Cadastrar</button></div>
-  <div class="card">${l.length?bar('p'):''}${l.map(p=>`<div class="row">${ckx('p',p.id)}<span class="grow"><a class="l" onclick="go('pac','${p.id}')">${esc(p.nome)}</a></span><span class="m">${esc(p.telefone||'')}</span>${xbtn('p',p.id)}</div>`).join('')||'<span class="m">Nenhum paciente.</span>'}</div><a class="l" onclick="go('pac',${id==='arq'?'null':"'arq'"})">${id==='arq'?'← Pacientes ativos':'Ver arquivados'}</a>`;
+  <input id="p_q" type="search" placeholder="Buscar paciente..." value="${esc(PQ)}" oninput="pQ(this.value)" autocomplete="off" aria-label="Buscar paciente">
+  <div class="card" id="pac_list">${pacLista()}</div><a class="l" onclick="go('pac',${id==='arq'?'null':"'arq'"})">${id==='arq'?'← Pacientes ativos':'Ver arquivados'}</a>`;
 }
+window.pacEditNome=()=>{document.getElementById('pn_view').hidden=true;document.getElementById('pn_edit').hidden=false;const i=document.getElementById('pn_n');i.focus();i.select()};
+window.pacCancelarNome=()=>{const i=document.getElementById('pn_n');i.value=i.dataset.o||'';document.getElementById('pn_edit').hidden=true;document.getElementById('pn_view').hidden=false;DIRTY=false};
+window.pacSalvarNome=run(async id=>{
+  const n=G('pn_n').trim().replace(/\s+/g,' ');
+  if(!n)return alert('O nome do paciente não pode ficar vazio.');
+  if(n===(document.getElementById('pn_n').dataset.o||''))return pacCancelarNome();
+  await q(sb.from('pacientes').update({nome:n}).eq('id',id));go('pac',id)});
 window.addPac=run(async()=>{if(!G('p_n').trim())return;await q(sb.from('pacientes').insert({nome:G('p_n').trim(),telefone:G('p_t').trim()||null}));go('pac')});
 const dt=x=>new Date(x).toLocaleDateString('pt-BR');
 const rowsP=(l,k)=>l.map(x=>`<div class="row">${k?ckx(k,x.id):''}<span class="grow"><a class="l" onclick="go('edit','${x.id}')">${esc(x.pacientes?.nome?x.pacientes.nome+' · ':'')}${esc(x.procedimento)}</a><br><span class="m">Criada em ${dt(x.criado_em)}${x.status==='concluida'&&x.concluida_em?' · concluída em '+dt(x.concluida_em):''}</span></span><span class="r"><span class="tag ${x.status==='concluida'?'ok':x.status==='cancelada'?'':'warn'}">${ST[x.status]}</span> ${x.valor_total_cobrado>0?R(x.valor_total_cobrado):''}</span>${k?xbtn(k,x.id):''}</div>`).join('');
 
-/* ---------- Histórico ---------- */
-async function vHist(f){
+/* ---------- Histórico (busca por paciente integrada aos filtros de status) ---------- */
+let HPN=[],HT=null,HS=0;
+async function histDados(f){
+  const t=norm(HQ.trim());let ids=null;
+  if(t){ids=HPN.filter(p=>norm(p.nome).includes(t)).map(p=>p.id);if(!ids.length)return[]}
   let s=sb.from('precificacoes').select('id,procedimento,status,valor_total_cobrado,criado_em,concluida_em,pacientes(nome)').order('criado_em',{ascending:false}).limit(100);
-  s=f==='arq'?s.eq('arquivada',true):(f?s.eq('status',f):s).eq('arquivada',false);const l=await q(s);
-  VIS.h=l.map(x=>x.id);
-  return`<div class="ph"><h2>Histórico de precificações</h2></div><select onchange="go('hist',this.value||null)"><option value="">Todas</option>${Object.entries(ST).map(([k,t])=>`<option value="${k}" ${f===k?'selected':''}>${t}</option>`).join('')}<option value="arq" ${f==='arq'?'selected':''}>Arquivadas</option></select>
-  <div class="card">${l.length?bar('h'):''}${rowsP(l,'h')||'<span class="m">Nada por aqui.</span>'}</div>`;
+  if(ids)s=s.in('paciente_id',ids);
+  s=f==='arq'?s.eq('arquivada',true):(f?s.eq('status',f):s).eq('arquivada',false);
+  return q(s);
+}
+function histLista(l){
+  VIS.h=l.map(x=>x.id);SEL.h=new Set([...SEL.h].filter(i=>VIS.h.includes(i)));
+  return(l.length?bar('h'):'')+(rowsP(l,'h')||`<span class="m">${HQ.trim()?'Nenhuma precificação encontrada para esta busca.':'Nada por aqui.'}</span>`);
+}
+window.hQ=v=>{HQ=v;clearTimeout(HT);HT=setTimeout(async()=>{
+  const my=++HS,f=arg;
+  try{const l=await histDados(f);if(my!==HS||nav!=='hist')return;const e=document.getElementById('hist_list');if(e){e.innerHTML=histLista(l);selUI('h')}}catch(e){}
+},200)};
+async function vHist(f){
+  HPN=await q(sb.from('pacientes').select('id,nome'));
+  const l=await histDados(f);
+  return`<div class="ph"><h2>Histórico de precificações</h2></div><div class="hfil"><select onchange="go('hist',this.value||null)"><option value="">Todas</option>${Object.entries(ST).map(([k,t])=>`<option value="${k}" ${f===k?'selected':''}>${t}</option>`).join('')}<option value="arq" ${f==='arq'?'selected':''}>Arquivadas</option></select>
+  <input id="h_q" type="search" placeholder="Buscar paciente..." value="${esc(HQ)}" oninput="hQ(this.value)" autocomplete="off" aria-label="Buscar paciente"></div>
+  <div class="card" id="hist_list">${histLista(l)}</div>`;
 }
 
 /* ---------- Produtos (usado no seletor da precificação e nos Cadastros) ---------- */
@@ -384,6 +419,25 @@ const finHtml=c=>`Valor final após desconto: <b>${R(c.valor_cobrado_final)}</b>
 const alertaMargem=c=>(c.margem_real_pct!=null&&Number(c.margem_real_pct)<20)?`<div class="alerta" role="alert">Atenção: esta precificação apresenta margem real inferior a 20%. Verifique os custos e o valor cobrado antes de finalizar.</div>`:'';
 const resHtml=c=>[['Materiais',c.materiais_total],['Custo operacional',c.operacional_total],['Outros custos',c.outros_custos],['Custo total',c.custo_total],['Taxa da maquininha ('+c.taxa_cartao_pct+'%)',c.taxa_cartao_valor],['Impostos',c.impostos_valor],['Líquido do cartão',c.f19_liquido_cartao]].map(([t,v])=>`<div class="row"><span>${t}</span><span>${R(v)}</span></div>`).join('')
  +`<div class="row hl"><b>Lucro real</b><b class="k">${R(c.lucro_real_f22)}</b></div><div class="row"><span>Margem real</span><span>${c.margem_real_pct==null?'—':Number(c.margem_real_pct).toFixed(2).replace('.',',')+'%'}</span></div>${alertaMargem(c)}`;
+/* Exceção de rateio por sessão: quantidade total de pacientes (inclui quem não está cadastrado). Só altera o denominador desta sessão. */
+const rxHtml=(s,x,L)=>{
+  const n=s.pacientes_rateio,on=!!s.rateio_externo;
+  if(L)return on&&n?`<div class="m">Rateio com pacientes não cadastrados: ${n} paciente(s) informado(s)</div>`:'';
+  return`<label class="ck rx"><input type="checkbox" ${on?'checked':''} onchange="rqTog('${s.id}',this.checked)"><span>Esta sessão possui rateio com pacientes não cadastrados?</span></label>`
+   +(on?`<div class="m">Quantidade de pacientes usada no cálculo: <b>${x.pacientes??n??'—'}</b>${n&&x.pacientes&&x.pacientes!==n?` (informado: ${n})`:''}</div>
+   ${n?`<button class="b g sm" onclick="rqEdit('${s.id}')">Editar quantidade de pacientes</button>`:''}
+   <div class="rqe" id="rqe_${s.id}" ${n?'hidden':''}><input id="rq_${s.id}" value="${n||''}" data-o="${n||''}" inputmode="numeric" placeholder="Total de pacientes no rateio" autocomplete="off"><button class="b sm" onclick="rqSave('${s.id}')">Salvar</button>${n?`<button class="b g sm" onclick="rqCancel('${s.id}')">Cancelar</button>`:''}</div>
+   ${n?'':'<div class="alerta">Informe a quantidade de pacientes para poder concluir.</div>'}`:'');
+};
+const qtdOk=v=>/^[1-9]\d{0,5}$/.test(String(v).trim());
+window.rqTog=run(async(sid,on)=>{await q(sb.rpc('definir_rateio_sessao',{p_sessao:sid,p_ativo:on,p_qtd:null}));go('edit',arg)});
+window.rqEdit=sid=>{const e=document.getElementById('rqe_'+sid);if(!e)return;e.hidden=false;const i=document.getElementById('rq_'+sid);i.focus();i.select()};
+window.rqCancel=sid=>{const i=document.getElementById('rq_'+sid);if(i)i.value=i.dataset.o||'';const e=document.getElementById('rqe_'+sid);if(e)e.hidden=true};
+window.rqSave=run(async sid=>{
+  const v=G('rq_'+sid).trim();
+  if(!qtdOk(v))return alert('Informe um número inteiro maior que zero.');
+  await q(sb.rpc('definir_rateio_sessao',{p_sessao:sid,p_ativo:true,p_qtd:parseInt(v,10)}));go('edit',arg)});
+window.rxForm=()=>{const b=document.getElementById('s_rxb'),c=document.getElementById('s_rx');if(b&&c)b.hidden=!c.checked};
 async function vEdit(id){
   const[p,ms,ss,c]=await Promise.all([
     q(sb.from('precificacoes').select('*,pacientes(nome)').eq('id',id).single()),
@@ -401,10 +455,12 @@ async function vEdit(id){
    ${ms.map(m=>`<div class="row"><span>${esc(m.nome)} <span class="m">× ${m.quantidade_usada}</span></span><span class="r">${R(m.preco_embalagem/m.rendimento*m.quantidade_usada)} ${L?'':`<button class="x" onclick="delMat('${m.id}','${id}')">✕</button>`}</span></div>`).join('')||'<span class="m">Nenhum material.</span>'}
    ${L?'':`<button class="b g" style="margin-top:10px" onclick="pkToggle()">+ Adicionar produto</button><div id="pk" class="pk" hidden></div>`}</div>
   <div class="card"><h3>2. Sessões e custo operacional</h3>
-   ${ss.map(s=>{const x=cs[s.id]||{},dd=s.dias_atendimento;return`<div class="row"><div><b>Sessão ${s.numero}</b> · ${fd(dd?.data||s.data)} <span class="tag">${s.status}</span>${s.contar_custo?'':' <span class="tag">sem custo</span>'}<div class="m">${dd?`${x.pacientes??'—'} paciente(s) no dia · custo do dia ${R(x.total_dia)}`:'sem dia'}</div>${x.rateio_especial&&x.nota_rateio?`<details class="m nota"><summary>Por que este custo?</summary>${esc(x.nota_rateio)}</details>`:''}</div><div class="r">${R(s.custo_congelado??x.custo_atribuido)} ${L?'':`<button class="x" onclick="delSes('${s.id}','${id}')">✕</button>`}</div></div>`}).join('')||'<span class="m">Nenhuma sessão.</span>'}
+   ${ss.map(s=>{const x=cs[s.id]||{},dd=s.dias_atendimento;return`<div class="row"><div class="grow"><b>Sessão ${s.numero}</b> · ${fd(dd?.data||s.data)} <span class="tag">${s.status}</span>${s.contar_custo?'':' <span class="tag">sem custo</span>'}<div class="m">${dd?`${x.pacientes??'—'} paciente(s) ${x.rateio_manual?'no rateio':'no dia'} · custo do dia ${R(x.total_dia)}`:'sem dia'}</div>${x.rateio_especial&&x.nota_rateio?`<details class="m nota"><summary>Por que este custo?</summary>${esc(x.nota_rateio)}</details>`:''}${s.contar_custo?rxHtml(s,x,L):''}</div><div class="r">${R(s.custo_congelado??x.custo_atribuido)} ${L?'':`<button class="x" onclick="delSes('${s.id}','${id}')">✕</button>`}</div></div>`}).join('')||'<span class="m">Nenhuma sessão.</span>'}
    ${L?'':`<label style="margin-top:10px;display:block">Data da sessão</label><input id="s_data" type="date" value="${hoje()}" onchange="diaInfo()">
    <div id="dia_info"></div>
    <div class="grid2"><div><label>Situação</label><select id="s_st"><option>prevista</option><option>realizada</option><option>faltou</option></select></div><label style="padding-top:26px"><input id="s_ct" type="checkbox" checked> contar custo</label></div>
+   <label class="ck rx"><input id="s_rx" type="checkbox" onchange="rxForm()"><span>Esta sessão possui rateio com pacientes não cadastrados?</span></label>
+   <div id="s_rxb" hidden><label>Quantidade total de pacientes no rateio (inclui quem não está cadastrado)</label><input id="s_rq" inputmode="numeric" placeholder="Ex.: 4" autocomplete="off"></div>
    <button class="b g" onclick="addSes('${id}')">Adicionar sessão</button>`}</div>
   <div class="card"><h3>3. Preço e recebimento</h3>
    <div class="grid3">${f('f_mg','Margem desejada (%)',p.margem_desejada_pct,'0')}${f('f_im','Impostos (%)',p.impostos_pct,'0')}${f('f_ou','Outros custos (R$)',p.outros_custos)}</div>
@@ -492,7 +548,9 @@ window.svCustos=run(async id=>{
   await q(sb.rpc('definir_custos_dia',{p_dia:DIA,p_itens:it}));go('edit',id)});
 window.addSes=run(async id=>{
   const d=G('s_data');if(!d)return alert('Escolha a data da sessão.');
-  await q(sb.rpc('adicionar_sessao',{p_prec:id,p_data:d,p_status:G('s_st'),p_contar:document.getElementById('s_ct').checked,p_itens:parseItens(G('s_it'))}));go('edit',id)});
+  const rx=!!document.getElementById('s_rx')?.checked,rq=G('s_rq').trim();
+  if(rx&&!qtdOk(rq))return alert('Informe a quantidade total de pacientes do rateio (número inteiro maior que zero).');
+  await q(sb.rpc('adicionar_sessao',{p_prec:id,p_data:d,p_status:G('s_st'),p_contar:document.getElementById('s_ct').checked,p_itens:parseItens(G('s_it')),p_rateio_externo:rx,p_pacientes_rateio:rx?parseInt(rq,10):null}));go('edit',id)});
 window.fin=run(async id=>{if(!confirm('Concluir? A precificação fica bloqueada e entra no Início. Só reabre com motivo.'))return;await q(sb.rpc('concluir_precificacao',{p_id:id}));go('edit',id)});
 window.reab=run(async id=>{const m=prompt('Motivo da reabertura:');if(!m)return;await q(sb.rpc('reabrir_precificacao',{p_id:id,p_motivo:m}));go('edit',id)});
 
@@ -571,14 +629,15 @@ async function vConta(){
 }
 
 /* ---------- Enter: mesma ação do botão principal do formulário (sem enviar duas vezes) ---------- */
-const ENT={em:()=>login(),pw:()=>login(),fg_em:()=>esqueci(),n_p:()=>criar(),n_n:()=>criar(),n_pr:()=>criar(),p_n:()=>addPac(),p_t:()=>addPac(),
-  m_q:()=>addMat(PK.pid),s_data:()=>addSes(arg),cp_n:()=>trocaSenha(),cp_c:()=>trocaSenha(),rec_n:()=>novaSenhaRec(),rec_c:()=>novaSenhaRec(),
+const ENT={em:()=>login(),pw:()=>login(),fg_em:()=>esqueci(),n_p:()=>criar(),n_n:()=>criar(),n_pr:()=>criar(),p_n:()=>addPac(),p_t:()=>addPac(),pn_n:()=>pacSalvarNome(arg),
+  m_q:()=>addMat(PK.pid),s_data:()=>addSes(arg),s_rq:()=>addSes(arg),cp_n:()=>trocaSenha(),cp_c:()=>trocaSenha(),rec_n:()=>novaSenhaRec(),rec_c:()=>novaSenhaRec(),
   c_n:()=>salvaProd(arg),c_u:()=>salvaProd(arg),c_p:()=>salvaProd(arg),c_r:()=>salvaProd(arg)};
 document.addEventListener('keydown',e=>{
   if(e.key!=='Enter'||e.isComposing||e.repeat)return;
   const t=e.target;if(!t||t.tagName!=='INPUT'||['checkbox','button','radio'].includes(t.type))return;
   const id=t.id||'';
-  if(id==='pk_q'||id==='cad_q'){e.preventDefault();return}
+  if(id==='pk_q'||id==='cad_q'||id==='h_q'||id==='p_q'){e.preventDefault();return}
+  if(id.startsWith('rq_')){e.preventDefault();rqSave(id.slice(3));return}
   let fn=ENT[id];
   if(!fn&&nav==='edit'&&/^f_(mg|im|ou|tt|dv|dp|dj|ca|px|pa|cb)$/.test(id)&&!t.disabled)fn=()=>salvar(arg);
   if(!fn)return;
@@ -603,7 +662,7 @@ document.addEventListener('touchend',e=>{
   if(el&&el.closest&&el.closest('input,textarea,select,.plist,.ov,.gfseg,.gf-svg'))return;
   swipe(dx>0?'r':'l')},{passive:true});
 const liveIds=/^f_(mg|im|ou|tt|dv|dp|ca|px|pa|cb|fm)$/;
-document.addEventListener('input',e=>{const id=e.target.id||'';if(!['pk_q','cad_q'].includes(id)&&!id.startsWith('cx_')&&!id.startsWith('pr_'))DIRTY=true;if(nav==='edit'&&liveIds.test(id))liveSched()});
+document.addEventListener('input',e=>{const id=e.target.id||'';if(!['pk_q','cad_q','h_q','p_q'].includes(id)&&!id.startsWith('cx_')&&!id.startsWith('pr_'))DIRTY=true;if(nav==='edit'&&liveIds.test(id))liveSched()});
 document.addEventListener('change',e=>{const id=e.target.id||'';if(nav==='edit'&&liveIds.test(id))liveSched()});
 sb.auth.onAuthStateChange((ev,s)=>{SESS=s;if(ev==='PASSWORD_RECOVERY'){RECOV=true;setTimeout(draw,0)}else if(ev==='SIGNED_OUT'){VC={};setTimeout(draw,0)}});
 
