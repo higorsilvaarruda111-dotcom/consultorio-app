@@ -89,14 +89,14 @@ window.procLoad=async()=>{PRL=await q(sb.from('procedimentos').select('id,nome,a
 const act=()=>PRL.filter(p=>p.ativo);
 function procRows(){
   const a=act(),arq=PRL.filter(p=>!p.ativo);
-  const row=(p,i)=>PE===p.id
+  const row=p=>PE===p.id
    ?`<div class="row"><input id="pr_ed" value="${esc(p.nome)}" autocomplete="off" style="margin:0"><span class="r"><button class="b sm" onclick="procSave('${p.id}')">Salvar</button><button class="b g sm" onclick="procCancel()">Cancelar</button></span></div><div class="row" style="border:0;padding-top:0"><span class="m">Renomear atualiza as precificações abertas e os gráficos; concluídas mantêm o nome da época nos registros.</span><span class="r"><button class="x" onclick="procArq('${p.id}')">Arquivar</button><button class="x" onclick="procDel('${p.id}')">Excluir</button></span></div>`
-   :`<div class="row"><span class="grow">${esc(p.nome)}</span><span class="r"><button class="xx" style="opacity:${i?1:.25}" aria-label="Subir" onclick="procMove('${p.id}',-1)">▲</button><button class="xx" style="opacity:${i<a.length-1?1:.25}" aria-label="Descer" onclick="procMove('${p.id}',1)">▼</button> <a class="l" onclick="procEdit('${p.id}')">editar</a></span></div>`;
+   :`<div class="row"><span class="grow">${esc(p.nome)}</span><a class="l" onclick="procEdit('${p.id}')">editar</a></div>`;
   return(a.map(row).join('')||'<div class="m e">Nenhum procedimento cadastrado.</div>')
    +(PADD?`<div class="row"><input id="pr_new" placeholder="Nome do novo procedimento" autocomplete="off" style="margin:0"><span class="r"><button class="b sm" onclick="procAdd()">Salvar</button><button class="b g sm" onclick="procCancel()">Cancelar</button></span></div>`:'')
    +(arq.length?`<details class="cat"><summary><span>Arquivados</span><span class="m">${arq.length}</span></summary>${arq.map(p=>`<div class="row"><span class="grow m">${esc(p.nome)}</span><a class="l" onclick="procReativar('${p.id}')">reativar</a></div>`).join('')}</details>`:'');
 }
-window.procCard=()=>`<div class="card"><div class="sh"><h3>Procedimentos</h3><button class="b sm" onclick="procNovo()">+ Adicionar novo procedimento</button></div><div class="m">Esta lista alimenta a aba Nova e os gráficos do Início.</div><div id="prc">${procRows()}</div></div>`;
+window.procCard=()=>`<div class="card"><div class="sh"><h3>Procedimentos</h3><button class="b sm" onclick="procNovo()">+ Novo</button></div><div class="m">Esta lista alimenta a aba Nova e os gráficos do Início.</div><div id="prc">${procRows()}</div></div>`;
 const rr=()=>{const e=document.getElementById('prc');if(e)e.innerHTML=procRows();const f=document.getElementById(PADD?'pr_new':'pr_ed');if(f)f.focus()};
 window.procNovo=()=>{PADD=true;PE=null;rr()};
 window.procEdit=id=>{PE=id;PADD=false;rr()};
@@ -110,7 +110,6 @@ window.procAdd=run(async()=>{
 window.procSave=run(async id=>{
   const n=limpo(document.getElementById('pr_ed')?.value);if(!n)return alert('Informe o nome do procedimento.');
   if(dup(n,id))return;const{error}=await sb.from('procedimentos').update({nome:n}).eq('id',id);if(error)return fail(error);go('cad')});
-window.procMove=run(async(id,d)=>{await q(sb.rpc('mover_procedimento',{p_id:id,p_dir:d}));go('cad')});
 window.procArq=run(async id=>{if(!confirm('Arquivar? Ele sai da lista da aba Nova; precificações antigas e gráficos continuam intactos.'))return;await q(sb.from('procedimentos').update({ativo:false}).eq('id',id));go('cad')});
 window.procReativar=run(async id=>{await q(sb.from('procedimentos').update({ativo:true,ordem:act().length+1}).eq('id',id));go('cad')});
 window.procDel=run(async id=>{

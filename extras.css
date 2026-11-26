@@ -16,3 +16,12 @@
 .rk-n{width:18px;color:var(--m);font-size:12.5px}
 .rk-b{height:8px;border-radius:99px;background:var(--a2);margin-top:6px;overflow:hidden}
 .rk-b i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--a3),var(--a))}
+/* Busca (Histórico e Pacientes) */
+.hfil{display:grid;grid-template-columns:minmax(0,1fr);column-gap:10px}
+@media(min-width:640px){.hfil{grid-template-columns:minmax(180px,.6fr) minmax(0,1fr)}}
+/* Exceção de rateio por sessão */
+.rx{margin:8px 0 2px;align-items:flex-start;font-size:12.5px;color:var(--m)}
+.rx input{margin:2px 8px 0 0;flex:0 0 auto}
+.rqe{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:6px 0}
+.rqe input{flex:1 1 150px;margin:0;width:auto}
+.rqe button{margin:0}
