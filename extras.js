@@ -1,5 +1,6 @@
-/* Extras: gráficos da tela inicial + gestão de procedimentos (Cadastros) + troca de procedimento na precificação.
-   Carregado ANTES do script principal; só usa os helpers dele (sb, q, R, esc, norm, go) em tempo de execução. */
+/* Extras: gráficos da tela inicial + gestão de procedimentos (Cadastros) + troca de procedimento na precificação
+   + lucro previsto nos cards Orçamentos/Em andamento + botão Duplicar no Histórico.
+   Carregado ANTES do script principal; só usa os helpers dele (sb, q, R, esc, norm, go, ST, SEL) em tempo de execução. */
 (function(){
 const MS=['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
 const PERS=[['6m','6 meses'],['12m','12 meses'],['ano','Este ano'],['tudo','Tudo']];
@@ -80,12 +81,33 @@ function body(){
   return`<div class="gfg">${c1}${c2}</div>`;
 }
 window.gfSection=d=>{
-  GD=d;
+  GD=d;fetchLucro();
   return`<div class="gf-h"><h3>Evolução e desempenho</h3><div class="m">Indicadores apenas de precificações concluídas</div><div class="seg gfseg">${PERS.map(([k,t])=>`<button class="${GP===k?'on':''}" onclick="gfPer('${k}')">${t}</button>`).join('')}</div></div><div id="gf_body">${body()}</div>`;
 };
 window.gfPer=k=>{GP=k;ALL=false;document.querySelectorAll('.gfseg button').forEach((b,i)=>b.classList.toggle('on',PERS[i][0]===k));const e=document.getElementById('gf_body');if(e)e.innerHTML=body()};
 window.gfAll=()=>{ALL=!ALL;const e=document.getElementById('gf_body');if(e)e.innerHTML=body()};
 let RT=null;window.addEventListener('resize',()=>{clearTimeout(RT);RT=setTimeout(()=>{const e=document.getElementById('gf_body');if(e&&GD&&(window.innerWidth<520?320:560)!==LASTW)e.innerHTML=body()},200)});
+
+/* ---------- Lucro previsto nos cards Orçamentos / Em andamento (tela inicial) ----------
+   O valor vem da função pipeline_lucro() do banco: soma do "lucro real" que o app já calcula para cada precificação aberta
+   (com valor definido). É inserido nos cards pelo DOM depois que a tela é desenhada (e atualizado quando a resposta chega). */
+let LUC=null;
+function applyLucro(){
+  const pipe=document.querySelector('.kg.pipe');if(!pipe||!LUC)return;
+  [['orc',LUC.orcamentos_lucro,LUC.orcamentos_sem_sessao],['and',LUC.andamento_lucro,LUC.andamento_sem_sessao]].forEach(([c,v,sem])=>{
+    const card=pipe.querySelector('.card.open.'+c);if(!card)return;
+    let el=card.querySelector('.pl');
+    if(!el){el=document.createElement('div');el.className='pl';el.style.marginTop='10px';card.appendChild(el)}
+    const n=Number(sem||0);
+    const html=`<div class="m">Lucro previsto</div><div class="k">${R(v)}</div>`+(n>0?`<div class="m" style="margin-top:4px">${n} sem sessão cadastrada: o lucro pode estar acima do real</div>`:'');
+    if(el.innerHTML!==html)el.innerHTML=html;
+  });
+}
+function fetchLucro(){
+  try{sb.rpc('pipeline_lucro').then(r=>{if(!r.error&&r.data&&r.data[0]){LUC=r.data[0];applyLucro()}}).catch(()=>{})}catch(e){}
+}
+{const appEl=document.getElementById('app');
+ if(appEl&&window.MutationObserver)new MutationObserver(()=>{if(LUC&&document.querySelector('.kg.pipe'))applyLucro()}).observe(appEl,{childList:true,subtree:true})}
 
 /* ---------- Procedimentos (Cadastros) ---------- */
 let PRL=[],PE=null,PADD=false;
@@ -160,4 +182,55 @@ window.peSalvar=run(async id=>{
   const{error}=await sb.from('precificacoes').update({procedimento_id:v,procedimento:nome}).eq('id',id);
   if(error)return alert(error.message||'Não foi possível trocar o procedimento.');
   go('edit',id)});
+
+/* ---------- Duplicar precificação (Histórico) ----------
+   Aparece ao lado de "Excluir selecionados" somente quando EXATAMENTE 1 precificação está selecionada e ela está em
+   Orçamento ou Em andamento (com 2 ou mais, ou concluída/cancelada, o botão fica oculto).
+   A cópia é feita no banco (função duplicar_precificacao): materiais com preços atuais, sessões nas mesmas datas
+   (entram no rateio do dia), margem, impostos, outros custos, valor e forma de pagamento. Não copia desconto,
+   justificativa nem cashback. O paciente é escolhido na lista ou digitado (novo). Depois abre no editor. */
+const HINFO={};
+function dupUI(){
+  const b=document.getElementById('dupbtn');if(!b)return;
+  const ids=[...SEL.h],i=ids.length===1?HINFO[ids[0]]:null;
+  b.hidden=!(i&&(i.st==='orcamento'||i.st==='em_andamento'));
+}
+window.addEventListener('load',()=>{
+  const oh=window.histLista,os=window.selUI;
+  if(typeof oh==='function')window.histLista=function(l){
+    (l||[]).forEach(x=>{HINFO[x.id]={st:x.status,proc:x.procedimento,pac:(x.pacientes&&x.pacientes.nome)||''}});
+    return oh(l)
+      .replace('<button id="selbtn"','<span class="dupg" style="display:flex;gap:6px;align-items:center"><button id="dupbtn" class="b sm g" onclick="dupAbrir()" hidden>Duplicar</button><button id="selbtn"')
+      .replace('hidden>Excluir selecionados</button></div>','hidden>Excluir selecionados</button></span></div>');
+  };
+  if(typeof os==='function')window.selUI=function(k){os(k);if(k==='h')dupUI()};
+});
+window.dupAbrir=run(async()=>{
+  const ids=[...SEL.h];if(ids.length!==1)return;
+  const id=ids[0],i=HINFO[id];
+  if(!i||(i.st!=='orcamento'&&i.st!=='em_andamento'))return;
+  const ps=await q(sb.from('pacientes').select('id,nome').eq('arquivado',false).order('nome'));
+  const r=await new Promise(res=>{
+    const o=document.createElement('div');o.className='ov';
+    o.innerHTML=`<div class="md" role="dialog" aria-modal="true"><h3>Duplicar precificação</h3><div class="mb"><b>${esc(i.pac)}</b> · ${esc(i.proc)} <span class="m">(${ST[i.st]})</span><div class="m" style="margin-top:6px">Copia procedimento, materiais (com os preços atuais), sessões, margem, impostos, outros custos, valor e forma de pagamento. Não copia desconto, justificativa nem cashback. A cópia nasce como Em andamento.</div></div><label>Paciente já cadastrado</label><select id="cx_p"><option value="">— escolher —</option>${ps.map(p=>`<option value="${p.id}">${esc(p.nome)}</option>`).join('')}</select><label>ou novo paciente</label><input id="cx_n" placeholder="Nome do paciente" autocomplete="off"><div class="ma"><button class="b g" id="cx_c">Cancelar</button><button class="b" id="cx_o">Duplicar</button></div></div>`;
+    document.body.appendChild(o);
+    const fim=v=>{o.remove();document.removeEventListener('keydown',onKey);res(v)};
+    const ok=()=>{
+      const p=o.querySelector('#cx_p').value,n=limpo(o.querySelector('#cx_n').value);
+      if(p&&n)return alert('Escolha um paciente da lista OU digite um novo, não os dois.');
+      if(!p&&!n)return alert('Escolha ou digite o paciente.');
+      if(n&&ps.some(x=>norm(x.nome)===norm(n)))return alert('Já existe um paciente com esse nome. Escolha-o na lista.');
+      fim({p,n});
+    };
+    const onKey=e=>{if(e.key==='Escape')fim(null);else if(e.key==='Enter'&&e.target&&e.target.id==='cx_n'&&!e.isComposing){e.preventDefault();ok()}};
+    document.addEventListener('keydown',onKey);
+    o.querySelector('#cx_c').onclick=()=>fim(null);
+    o.querySelector('#cx_o').onclick=ok;
+    o.addEventListener('click',e=>{if(e.target===o)fim(null)});
+    o.querySelector('#cx_p').focus();
+  });
+  if(!r)return;
+  const{data,error}=await sb.rpc('duplicar_precificacao',{p_origem:id,p_paciente:r.p||null,p_novo_nome:r.n||null});
+  if(error)return alert(error.message||'Não foi possível duplicar.');
+  SEL.h.clear();go('edit',data)});
 })();
