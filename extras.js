@@ -1,9 +1,12 @@
-/* Extras: gráficos da tela inicial + gestão de procedimentos (Cadastros).
-   Carregado ANTES do script principal; só usa os helpers dele (sb, q, R, esc, norm, run, go) em tempo de execução. */
+/* Extras: gráficos da tela inicial + gestão de procedimentos (Cadastros) + troca de procedimento na precificação.
+   Carregado ANTES do script principal; só usa os helpers dele (sb, q, R, esc, norm, go) em tempo de execução. */
 (function(){
 const MS=['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
 const PERS=[['6m','6 meses'],['12m','12 meses'],['ano','Este ano'],['tudo','Tudo']];
 let GP='12m',GD=null,PTS=[],ALL=false,LASTW=0;
+/* run local: este arquivo carrega ANTES do script principal, então o "run" dele ainda não existe aqui.
+   (Era isto que fazia os botões Salvar/Editar de Procedimentos não funcionarem.) Protege contra duplo clique. */
+const run=f=>{let busy=false;return async(...a)=>{if(busy)return;busy=true;try{await f(...a)}catch(e){console.error(e)}finally{busy=false}}};
 
 /* ---------- dados (a partir das views; nada digitado à mão) ---------- */
 /* pre: promessa da view mensal já pedida pela tela inicial (evita pedir a mesma view duas vezes) */
@@ -121,4 +124,40 @@ document.addEventListener('keydown',e=>{
   if(e.key!=='Enter'||e.isComposing||e.repeat)return;const id=e.target&&e.target.id;
   if(id==='pr_new'){e.preventDefault();procAdd()}else if(id==='pr_ed'){e.preventDefault();procSave(PE)}
 });
+
+/* ---------- Trocar o procedimento de uma precificação (botão "Editar procedimento" no título do editor) ----------
+   Só aparece em precificações não concluídas (as concluídas são bloqueadas; para trocar, reabra com motivo).
+   A lista é a mesma do Cadastros (procedimentos ativos). Funciona envolvendo a tela do editor depois que o app carrega. */
+window.addEventListener('load',()=>{
+  const orig=window.vEdit;if(typeof orig!=='function')return;
+  window.vEdit=async function(id){
+    const h=await orig(id);
+    if(/bloqueada \(snapshot/.test(h))return h;
+    try{
+      const[a,b]=await Promise.all([
+        sb.from('precificacoes').select('procedimento_id,procedimento').eq('id',id).single(),
+        sb.from('procedimentos').select('id,nome,ativo').order('ordem').order('nome')]);
+      if(a.error||b.error||!a.data)return h;
+      const cur=a.data.procedimento_id,lista=b.data||[];
+      const ativos=lista.filter(p=>p.ativo);
+      const atual=lista.find(p=>p.id===cur);
+      const opts=(cur&&atual&&!atual.ativo?`<option value="${atual.id}" selected>${esc(atual.nome)} (arquivado)</option>`:'')
+        +(!cur?`<option value="" selected>${esc(a.data.procedimento)} (atual)</option>`:'')
+        +ativos.map(p=>`<option value="${p.id}" ${p.id===cur?'selected':''}>${esc(p.nome)}</option>`).join('');
+      const html=`<div id="pe_view"><a class="l" onclick="peAbrir()">Editar procedimento</a></div>`
+        +`<div class="card" id="pe_box" hidden><label>Procedimento desta precificação</label><select id="pr_sel" data-o="${esc(cur||'')}">${opts}</select><div class="m" style="margin:-4px 0 10px">A lista é a mesma de Cadastros. Para um procedimento novo, cadastre-o lá primeiro.</div><button class="b" onclick="peSalvar('${id}')">Salvar</button><button class="b g" onclick="peCancelar()">Cancelar</button></div>`;
+      return h.replace('</h2>','</h2>'+html);
+    }catch(e){return h}
+  };
+});
+window.peAbrir=()=>{const v=document.getElementById('pe_view'),b=document.getElementById('pe_box');if(!v||!b)return;v.hidden=true;b.hidden=false;document.getElementById('pr_sel')?.focus()};
+window.peCancelar=()=>{const s=document.getElementById('pr_sel');if(s)s.value=s.dataset.o||'';const v=document.getElementById('pe_view'),b=document.getElementById('pe_box');if(b)b.hidden=true;if(v)v.hidden=false};
+window.peSalvar=run(async id=>{
+  const s=document.getElementById('pr_sel');if(!s)return;
+  const v=s.value;if(!v)return alert('Escolha um procedimento.');
+  if(v===(s.dataset.o||''))return peCancelar();
+  const nome=s.selectedOptions[0].text;
+  const{error}=await sb.from('precificacoes').update({procedimento_id:v,procedimento:nome}).eq('id',id);
+  if(error)return alert(error.message||'Não foi possível trocar o procedimento.');
+  go('edit',id)});
 })();
